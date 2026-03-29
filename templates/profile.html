@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Profile — Sukhan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Playfair Display',serif; min-height:100vh; }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--rose),var(--gold2),var(--rose),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:5%;  animation-duration:14s; animation-delay:0s;  font-size:0.9rem; }
+    .petal:nth-child(2){ left:30%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:60%; animation-duration:12s; animation-delay:5s;  font-size:0.8rem; }
+    .petal:nth-child(4){ left:85%; animation-duration:15s; animation-delay:2s;  font-size:1.1rem; }
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; } 90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .navbar {
+      position:sticky; top:0; z-index:100;
+      background:rgba(253,248,245,0.93); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; padding:0 28px; height:52px; gap:14px;
+      box-shadow:0 2px 20px rgba(192,86,106,0.07);
+    }
+    .back-btn {
+      text-decoration:none; padding:5px 14px;
+      border:1px solid var(--border); border-radius:20px;
+      color:var(--text2); font-size:0.72rem; letter-spacing:0.1em;
+      transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .back-btn:hover { color:var(--rose); border-color:var(--rose); }
+    .nav-title { font-style:italic; font-size:1.1rem; color:var(--rose); }
+
+    .main {
+      max-width:800px; margin:0 auto;
+      padding:48px 24px; position:relative; z-index:1;
+      display:flex; flex-direction:column; gap:28px;
+    }
+
+    /* PROFILE HERO */
+    .profile-hero {
+      background:white; border:1px solid var(--border);
+      border-radius:20px; padding:40px;
+      text-align:center;
+      box-shadow:0 8px 40px rgba(192,86,106,0.08);
+      position:relative; overflow:hidden;
+    }
+    .profile-hero::before {
+      content:''; position:absolute; top:0; left:0; right:0; height:4px;
+      background:linear-gradient(90deg, var(--rose), var(--gold), var(--rose));
+    }
+    .profile-avatar {
+      width:90px; height:90px; border-radius:50%;
+      background:linear-gradient(135deg, var(--rose), var(--gold));
+      display:flex; align-items:center; justify-content:center;
+      font-size:2.2rem; margin:0 auto 16px;
+      box-shadow:0 6px 24px rgba(192,86,106,0.25);
+    }
+    .profile-name {
+      font-style:italic; font-size:2rem; color:var(--rose);
+      letter-spacing:0.06em; margin-bottom:6px;
+    }
+    .profile-title {
+      font-family:'Noto Nastaliq Urdu',serif; font-size:0.95rem;
+      color:var(--text2); margin-bottom:16px;
+    }
+    .profile-bio {
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.88rem; color:var(--muted); letter-spacing:0.08em;
+      line-height:1.8; max-width:400px; margin:0 auto;
+    }
+
+    /* STATS GRID */
+    .stats-grid {
+      display:grid; grid-template-columns:repeat(4,1fr); gap:16px;
+    }
+    .stat-card {
+      background:white; border:1px solid var(--border);
+      border-radius:14px; padding:22px 16px; text-align:center;
+      box-shadow:0 4px 20px rgba(192,86,106,0.06);
+      transition:transform 0.2s;
+    }
+    .stat-card:hover { transform:translateY(-3px); }
+    .stat-emoji { font-size:1.6rem; margin-bottom:8px; }
+    .stat-number {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:1.8rem; color:var(--rose); line-height:1;
+      margin-bottom:6px;
+    }
+    .stat-label {
+      font-size:0.6rem; color:var(--muted);
+      letter-spacing:0.15em; text-transform:uppercase;
+      font-family:'Cormorant Garamond',serif;
+    }
+
+    /* MOOD BREAKDOWN */
+    .section-heading {
+      font-style:italic; font-size:1rem; color:var(--rose);
+      letter-spacing:0.08em; margin-bottom:16px;
+      display:flex; align-items:center; gap:8px;
+    }
+    .section-heading::after {
+      content:''; flex:1; height:1px; background:var(--border);
+    }
+
+    .mood-breakdown {
+      background:white; border:1px solid var(--border);
+      border-radius:14px; padding:24px;
+      box-shadow:0 4px 20px rgba(192,86,106,0.06);
+    }
+    .mood-row {
+      display:flex; align-items:center; gap:12px;
+      margin-bottom:14px;
+    }
+    .mood-row:last-child { margin-bottom:0; }
+    .mood-row-label {
+      width:80px; font-size:0.75rem; color:var(--text2);
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      letter-spacing:0.06em;
+    }
+    .mood-bar-track {
+      flex:1; height:8px; background:var(--bg2);
+      border-radius:4px; overflow:hidden;
+    }
+    .mood-bar-fill {
+      height:100%; border-radius:4px;
+      animation:barIn 1s ease both;
+    }
+    @keyframes barIn { from{width:0} }
+    .mood-row-count {
+      font-size:0.72rem; color:var(--muted); width:24px; text-align:right;
+      font-family:'Cormorant Garamond',serif;
+    }
+
+    /* STREAK CARD */
+    .streak-card {
+      background:white; border:1px solid var(--border);
+      border-radius:14px; padding:24px;
+      box-shadow:0 4px 20px rgba(192,86,106,0.06);
+      display:flex; justify-content:space-around; align-items:center;
+    }
+    .streak-item { text-align:center; }
+    .streak-num {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:2rem; color:var(--rose);
+    }
+    .streak-lbl {
+      font-size:0.6rem; color:var(--muted);
+      letter-spacing:0.15em; text-transform:uppercase;
+      font-family:'Cormorant Garamond',serif; margin-top:4px;
+    }
+    .streak-divider { width:1px; height:50px; background:var(--border); }
+
+    /* TOP MOOD */
+    .top-mood-card {
+      background:white; border:1px solid var(--border);
+      border-radius:14px; padding:24px;
+      box-shadow:0 4px 20px rgba(192,86,106,0.06);
+      display:flex; align-items:center; gap:20px;
+    }
+    .top-mood-emoji { font-size:3rem; }
+    .top-mood-text { flex:1; }
+    .top-mood-label {
+      font-size:0.6rem; color:var(--muted); letter-spacing:0.15em;
+      text-transform:uppercase; font-family:'Cormorant Garamond',serif;
+      margin-bottom:6px;
+    }
+    .top-mood-name {
+      font-style:italic; font-size:1.4rem; color:var(--rose);
+    }
+    .top-mood-sub {
+      font-family:'Noto Nastaliq Urdu',serif; font-size:0.82rem;
+      color:var(--text2); margin-top:4px;
+    }
+
+    /* QUICK LINKS */
+    .quick-links {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:12px;
+    }
+    .quick-link {
+      background:white; border:1px solid var(--border);
+      border-radius:12px; padding:16px; text-align:center;
+      text-decoration:none; color:var(--text2);
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.82rem; letter-spacing:0.08em;
+      transition:all 0.2s;
+      box-shadow:0 2px 12px rgba(192,86,106,0.05);
+    }
+    .quick-link:hover { color:var(--rose); border-color:var(--rose); transform:translateY(-2px); }
+    .quick-link-emoji { font-size:1.4rem; display:block; margin-bottom:6px; }
+  </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">🌸</span><span class="petal">✿</span>
+  <span class="petal">🌹</span><span class="petal">⭐</span>
+</div>
+
+<nav class="navbar">
+  <a href="/" class="back-btn">← Home</a>
+  <div class="nav-title">👑 Profile</div>
+</nav>
+
+<div class="main">
+
+  <!-- PROFILE HERO -->
+  <div class="profile-hero">
+    <div class="profile-avatar">👑</div>
+    <div class="profile-name">Areeba</div>
+    <div class="profile-title">شاعرہ · Poet</div>
+    <div class="profile-bio">
+      "Words are my world, poetry is my soul" 🌹<br/>
+      I express emotions with my words· Multan
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div>
+    <div class="section-heading">✦ Your Stats</div>
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-emoji">📝</div>
+        <div class="stat-number">{{ total_poems }}</div>
+        <div class="stat-label">Total Poems</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">⭐</div>
+        <div class="stat-number">{{ total_favs }}</div>
+        <div class="stat-label">Favorites</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">🔥</div>
+        <div class="stat-number">{{ streak.current }}</div>
+        <div class="stat-label">Day Streak</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-emoji">🏆</div>
+        <div class="stat-number">{{ streak.longest }}</div>
+        <div class="stat-label">Best Streak</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STREAK -->
+  <div>
+    <div class="section-heading">✦ Writing Streak</div>
+    <div class="streak-card">
+      <div class="streak-item">
+        <div class="streak-num">🔥 {{ streak.current }}</div>
+        <div class="streak-lbl">Current Streak</div>
+      </div>
+      <div class="streak-divider"></div>
+      <div class="streak-item">
+        <div class="streak-num">🏆 {{ streak.longest }}</div>
+        <div class="streak-lbl">Longest Streak</div>
+      </div>
+      <div class="streak-divider"></div>
+      <div class="streak-item">
+        <div class="streak-num">
+          {% if streak.current >= 7 %}🌟
+          {% elif streak.current >= 3 %}⭐
+          {% else %}✨{% endif %}
+        </div>
+        <div class="streak-lbl">
+          {% if streak.current >= 7 %}Star Poet!
+          {% elif streak.current >= 3 %}Rising Star!
+          {% else %}Keep Going!{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MOOD BREAKDOWN -->
+  <div>
+    <div class="section-heading">✦ Poetry by Mood</div>
+    <div class="mood-breakdown">
+      <div class="mood-row">
+        <div class="mood-row-label">🌹 Love</div>
+        <div class="mood-bar-track">
+          <div class="mood-bar-fill" style="width:{% if total_poems > 0 %}{{ ((mood_counts.get('love',0)/total_poems)*100)|int }}%{% else %}0%{% endif %};background:#e8607a;"></div>
+        </div>
+        <div class="mood-row-count">{{ mood_counts.get('love', 0) }}</div>
+      </div>
+      <div class="mood-row">
+        <div class="mood-row-label">🌍 Reality</div>
+        <div class="mood-bar-track">
+          <div class="mood-bar-fill" style="width:{% if total_poems > 0 %}{{ ((mood_counts.get('reality',0)/total_poems)*100)|int }}%{% else %}0%{% endif %};background:#4a64a8;"></div>
+        </div>
+        <div class="mood-row-count">{{ mood_counts.get('reality', 0) }}</div>
+      </div>
+      <div class="mood-row">
+        <div class="mood-row-label">😊 Happy</div>
+        <div class="mood-bar-track">
+          <div class="mood-bar-fill" style="width:{% if total_poems > 0 %}{{ ((mood_counts.get('happy',0)/total_poems)*100)|int }}%{% else %}0%{% endif %};background:#e8b840;"></div>
+        </div>
+        <div class="mood-row-count">{{ mood_counts.get('happy', 0) }}</div>
+      </div>
+      <div class="mood-row">
+        <div class="mood-row-label">💔 Sad</div>
+        <div class="mood-bar-track">
+          <div class="mood-bar-fill" style="width:{% if total_poems > 0 %}{{ ((mood_counts.get('sad',0)/total_poems)*100)|int }}%{% else %}0%{% endif %};background:#6050a8;"></div>
+        </div>
+        <div class="mood-row-count">{{ mood_counts.get('sad', 0) }}</div>
+      </div>
+      <div class="mood-row">
+        <div class="mood-row-label">🤝 Dosti</div>
+        <div class="mood-bar-track">
+          <div class="mood-bar-fill" style="width:{% if total_poems > 0 %}{{ ((mood_counts.get('dosti',0)/total_poems)*100)|int }}%{% else %}0%{% endif %};background:#2e8b57;"></div>
+        </div>
+        <div class="mood-row-count">{{ mood_counts.get('dosti', 0) }}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOP MOOD -->
+  {% if top_mood %}
+  <div>
+    <div class="section-heading">✦ Your Favorite Mood</div>
+    <div class="top-mood-card">
+      <div class="top-mood-emoji">
+        {% if top_mood[0] == 'love' %}🌹
+        {% elif top_mood[0] == 'reality' %}🌍
+        {% elif top_mood[0] == 'happy' %}😊
+        {% elif top_mood[0] == 'dosti' %}🤝
+        {% else %}💔{% endif %}
+      </div>
+      <div class="top-mood-text">
+        <div class="top-mood-label">✦ Most Written</div>
+        <div class="top-mood-name">{{ top_mood[0]|title }}</div>
+        <div class="top-mood-sub">{{ top_mood[1] }} poems likhi hain is mood mein</div>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- QUICK LINKS -->
+  <div>
+    <div class="section-heading">✦ Quick Links</div>
+    <div class="quick-links">
+      <a href="/" class="quick-link">
+        <span class="quick-link-emoji">🏠</span>Home
+      </a>
+      <a href="/favorites" class="quick-link">
+        <span class="quick-link-emoji">⭐</span>Favorites
+      </a>
+      <a href="/search" class="quick-link">
+        <span class="quick-link-emoji">🔍</span>Search
+      </a>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

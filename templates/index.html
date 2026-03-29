@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sukhan — Poetry App</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:     #fdf8f5;
+      --bg2:    #faf0ea;
+      --text:   #3d1f14;
+      --text2:  #9b6248;
+      --muted:  #c4997a;
+      --border: rgba(192,86,106,0.15);
+      --gold:   #c9954a;
+      --gold2:  #e8c17a;
+      --rose:   #c0566a;
+      --rose2:  #e0889a;
+      --rose3:  #fce8ec;
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Playfair Display', serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* ── ANIMATED BACKGROUND ── */
+    .bg-layer {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse at 15% 20%, rgba(192,86,106,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 85% 80%, rgba(201,149,74,0.07) 0%, transparent 50%),
+        radial-gradient(ellipse at 50% 50%, rgba(232,193,122,0.04) 0%, transparent 70%);
+    }
+
+    /* ── FLOATING PETALS ── */
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal {
+      position: absolute; top: -40px;
+      font-size: 1.1rem; opacity: 0;
+      animation: petalFall linear infinite;
+    }
+    .petal:nth-child(1)  { left:8%;   animation-duration:12s; animation-delay:0s;   font-size:0.9rem; }
+    .petal:nth-child(2)  { left:18%;  animation-duration:15s; animation-delay:2s;   font-size:1.2rem; }
+    .petal:nth-child(3)  { left:28%;  animation-duration:11s; animation-delay:4s;   font-size:0.8rem; }
+    .petal:nth-child(4)  { left:38%;  animation-duration:14s; animation-delay:1s;   font-size:1rem;   }
+    .petal:nth-child(5)  { left:52%;  animation-duration:13s; animation-delay:3s;   font-size:0.9rem; }
+    .petal:nth-child(6)  { left:62%;  animation-duration:16s; animation-delay:5s;   font-size:1.1rem; }
+    .petal:nth-child(7)  { left:72%;  animation-duration:12s; animation-delay:2.5s; font-size:0.85rem;}
+    .petal:nth-child(8)  { left:82%;  animation-duration:14s; animation-delay:0.5s; font-size:1rem;   }
+    .petal:nth-child(9)  { left:90%;  animation-duration:11s; animation-delay:3.5s; font-size:0.9rem; }
+    .petal:nth-child(10) { left:45%;  animation-duration:15s; animation-delay:6s;   font-size:1.2rem; }
+
+    @keyframes petalFall {
+      0%   { transform: translateY(-40px) rotate(0deg);   opacity:0; }
+      10%  { opacity: 0.6; }
+      90%  { opacity: 0.3; }
+      100% { transform: translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    /* ── TOP SHIMMER LINE ── */
+    .shimmer-line {
+      position: fixed; top:0; left:0; right:0; height:2px; z-index:100;
+      background: linear-gradient(90deg, transparent, var(--rose), var(--gold2), var(--rose), transparent);
+      box-shadow: 0 0 20px rgba(192,86,106,0.3);
+      animation: shimmerMove 3s ease-in-out infinite;
+    }
+    @keyframes shimmerMove {
+      0%,100% { opacity:0.7; }
+      50%      { opacity:1; box-shadow:0 0 30px rgba(192,86,106,0.5); }
+    }
+
+    /* ── NAVBAR ── */
+    .navbar {
+      position: relative; z-index:10;
+      background: rgba(253,248,245,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 0 36px; height: 56px;
+      display: flex; align-items: center; justify-content: space-between;
+      box-shadow: 0 2px 30px rgba(192,86,106,0.08);
+    }
+    .nav-brand {
+      display: flex; align-items: center; gap: 10px;
+      font-style: italic; font-size: 1.35rem;
+      color: var(--rose); letter-spacing: 0.1em;
+    }
+    .nav-brand-ur {
+      font-family: 'Noto Nastaliq Urdu', serif;
+      font-size: 0.88rem; color: var(--text2); font-style: normal;
+    }
+    .nav-crown { color: var(--gold); font-size: 0.9rem; letter-spacing:0.2em; }
+    .nav-right {
+      font-size: 0.72rem; color: var(--muted);
+      letter-spacing: 0.12em; font-style: italic;
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    /* ── HERO ── */
+    .hero {
+      position: relative; z-index:1;
+      text-align: center; padding: 60px 20px 44px;
+      border-bottom: 1px solid var(--border);
+      animation: fadeDown 0.9s ease both;
+    }
+
+    .hero-crown {
+      color: var(--gold); font-size: 1rem;
+      letter-spacing: 0.5em; margin-bottom: 10px;
+      animation: glowPulse 3s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+      0%,100% { text-shadow: none; }
+      50%      { text-shadow: 0 0 20px rgba(201,149,74,0.5); }
+    }
+
+    .hero-title {
+      font-size: 2.8rem; font-style: italic;
+      background: linear-gradient(135deg, var(--rose), var(--gold), var(--rose2));
+      -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: 0.06em;
+      text-shadow: none;
+      line-height: 1.2;
+    }
+
+    .hero-sub {
+      font-family: 'Noto Nastaliq Urdu', serif;
+      font-size: 1.05rem; color: var(--text2); margin-top: 10px;
+      animation: fadeUp 1s ease both 0.3s;
+    }
+
+    .hero-ornament {
+      display: flex; align-items: center; gap: 14px;
+      max-width: 320px; margin: 18px auto 0;
+      color: var(--gold); font-size: 0.8rem; letter-spacing:0.3em;
+    }
+    .hero-ornament::before, .hero-ornament::after {
+      content:''; flex:1; height:1px;
+    }
+    .hero-ornament::before { background: linear-gradient(90deg, transparent, var(--gold)); }
+    .hero-ornament::after  { background: linear-gradient(90deg, var(--gold), transparent); }
+
+    /* ── CARDS ── */
+    .cards-grid {
+      position: relative; z-index:1;
+      display: grid; grid-template-columns: repeat(2,1fr);
+      gap: 26px; padding: 40px 52px;
+      max-width: 1150px; margin: 0 auto;
+    }
+
+    .mood-card {
+      border-radius: 16px; border: 1px solid;
+      padding: 30px; cursor: pointer;
+      text-decoration: none; color: inherit;
+      display: flex; flex-direction: column; gap: 16px;
+      transition: transform 0.25s, box-shadow 0.25s;
+      position: relative; overflow: hidden;
+      animation: cardIn 0.7s ease both;
+      backdrop-filter: blur(8px);
+    }
+    .mood-card:nth-child(1) { animation-delay: 0.1s; }
+    .mood-card:nth-child(2) { animation-delay: 0.2s; }
+    .mood-card:nth-child(3) { animation-delay: 0.3s; }
+    .mood-card:nth-child(4) { animation-delay: 0.4s; }
+
+    .mood-card:hover { transform: translateY(-6px) scale(1.01); }
+
+    /* Shimmer on hover */
+    .mood-card::after {
+      content:''; position:absolute; inset:0; opacity:0; transition:opacity 0.4s;
+      background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, transparent 60%);
+      border-radius: 16px;
+    }
+    .mood-card:hover::after { opacity:1; }
+
+    /* Love */
+    .card-love {
+      background: linear-gradient(145deg, #fff5f7, #fce8ec, #fff0f3);
+      border-color: rgba(192,86,106,0.2);
+      box-shadow: 0 6px 40px rgba(192,86,106,0.12), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .card-love:hover { box-shadow: 0 16px 60px rgba(192,86,106,0.25), inset 0 1px 0 rgba(255,255,255,0.9); }
+
+    /* Reality */
+    .card-reality {
+      background: linear-gradient(145deg, #f5f7ff, #eaedfa, #f0f3ff);
+      border-color: rgba(74,100,168,0.2);
+      box-shadow: 0 6px 40px rgba(74,100,168,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .card-reality:hover { box-shadow: 0 16px 60px rgba(74,100,168,0.22), inset 0 1px 0 rgba(255,255,255,0.9); }
+
+    /* Happy */
+    .card-happy {
+      background: linear-gradient(145deg, #fffdf0, #fdf5d8, #fffbea);
+      border-color: rgba(200,144,32,0.2);
+      box-shadow: 0 6px 40px rgba(200,144,32,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .card-happy:hover { box-shadow: 0 16px 60px rgba(200,144,32,0.22), inset 0 1px 0 rgba(255,255,255,0.9); }
+
+    /* Sad */
+    .card-sad {
+      background: linear-gradient(145deg, #f8f5ff, #ede8fa, #f4f0ff);
+      border-color: rgba(96,80,168,0.2);
+      box-shadow: 0 6px 40px rgba(96,80,168,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+    }
+    .card-sad:hover { box-shadow: 0 16px 60px rgba(96,80,168,0.22), inset 0 1px 0 rgba(255,255,255,0.9); }
+
+    .card-header { display:flex; justify-content:space-between; align-items:flex-start; }
+    .card-emoji  { font-size: 2.2rem; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15)); }
+    .card-count  {
+      font-size: 0.6rem; letter-spacing:0.12em; opacity:0.6;
+      font-family:'Cormorant Garamond', serif; font-style:italic;
+    }
+
+    .card-title {
+      font-style: italic; font-size: 1.75rem; letter-spacing:0.05em;
+      line-height: 1.2;
+    }
+    .card-love .card-title    { color: var(--rose); }
+    .card-reality .card-title { color: #4a64a8; }
+    .card-happy .card-title   { color: #9a6c10; }
+    .card-sad .card-title     { color: #6050a8; }
+
+    .card-urdu {
+      font-family: 'Noto Nastaliq Urdu', serif;
+      font-size: 0.88rem; color: var(--text2);
+      text-align: right; direction: rtl; line-height: 1.8;
+    }
+
+    /* AI line */
+    .card-ai {
+      border-top: 1px solid rgba(180,100,80,0.1);
+      padding-top: 14px;
+    }
+    .ai-label {
+      font-size: 0.52rem; letter-spacing:0.2em;
+      text-transform: uppercase; color: var(--muted);
+      margin-bottom: 8px; font-family:'Cormorant Garamond', serif;
+      display: flex; align-items:center; gap:6px;
+    }
+    .ai-chip {
+      font-size: 0.48rem; padding: 1px 5px;
+      border: 1px solid currentColor; border-radius: 2px;
+      letter-spacing: 0.1em;
+    }
+    .ai-line {
+      font-family: 'Noto Nastaliq Urdu', serif;
+      font-size: 0.92rem; line-height: 2.1;
+      text-align: right; direction: rtl;
+      font-weight: 600;
+    }
+    .card-love .ai-line    { color: var(--rose); }
+    .card-reality .ai-line { color: #4a64a8; }
+    .card-happy .ai-line   { color: #9a6c10; }
+    .card-sad .ai-line     { color: #6050a8; }
+
+    .card-footer {
+      display: flex; justify-content:space-between; align-items:center;
+      margin-top: 2px;
+    }
+    .open-link {
+      font-size: 0.72rem; font-style:italic;
+      letter-spacing:0.1em; transition: letter-spacing 0.2s;
+      font-family:'Cormorant Garamond', serif;
+      display: flex; align-items:center; gap:5px;
+    }
+    .mood-card:hover .open-link { letter-spacing:0.18em; }
+    .card-love .open-link    { color: var(--rose); }
+    .card-reality .open-link { color: #4a64a8; }
+    .card-happy .open-link   { color: #9a6c10; }
+    .card-sad .open-link     { color: #6050a8; }
+
+    .poem-badge {
+      font-size: 0.6rem; color: var(--muted);
+      letter-spacing: 0.08em; font-family:'Cormorant Garamond', serif;
+    }
+
+    /* ── FOOTER ── */
+    .page-footer {
+      position: relative; z-index:1;
+      text-align: center; padding: 24px;
+      color: var(--muted); font-size: 0.65rem;
+      letter-spacing: 0.15em; font-style:italic;
+      border-top: 1px solid var(--border);
+      font-family: 'Cormorant Garamond', serif;
+    }
+
+    /* ── ANIMATIONS ── */
+    @keyframes fadeDown { from{opacity:0;transform:translateY(-14px)} to{opacity:1;transform:none} }
+    @keyframes fadeUp   { from{opacity:0;transform:translateY(10px)}  to{opacity:1;transform:none} }
+    @keyframes cardIn   { from{opacity:0;transform:translateY(20px)}  to{opacity:1;transform:none} }
+  /* Dosti card */
+.card-dosti {
+  background: linear-gradient(145deg, #f0fff4, #e0f5e9, #f0fff4);
+  border-color: rgba(46,139,87,0.2);
+  box-shadow: 0 6px 40px rgba(46,139,87,0.1), inset 0 1px 0 rgba(255,255,255,0.8);
+}
+.card-dosti:hover { box-shadow: 0 16px 60px rgba(46,139,87,0.22), inset 0 1px 0 rgba(255,255,255,0.9); }
+.card-dosti .card-title  { color: #2e8b57; }
+.card-dosti .ai-line     { color: #2e8b57; }
+.card-dosti .open-link   { color: #3aaa6e; }
+
+.search-bar {
+  display: flex; align-items: center;
+  max-width: 420px; margin: 0 auto;
+  background: white; border: 1px solid var(--border);
+  border-radius: 25px; overflow: hidden;
+  box-shadow: 0 4px 20px rgba(192,86,106,0.1);
+  transition: box-shadow 0.2s;
+}
+.search-bar:focus-within {
+  box-shadow: 0 4px 30px rgba(192,86,106,0.2);
+  border-color: var(--rose);
+}
+.search-input {
+  flex: 1; padding: 11px 20px;
+  border: none; outline: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 0.9rem;
+  color: var(--text); background: transparent;
+  letter-spacing: 0.06em;
+}
+.search-input::placeholder { color: var(--muted); }
+.search-btn {
+  padding: 10px 18px; background: var(--rose);
+  border: none; cursor: pointer; font-size: 0.9rem;
+  transition: background 0.2s;
+}
+.search-btn:hover { background: var(--rose2); }
+
+/* STREAK BAR */
+.streak-bar {
+  display: flex; align-items: center; justify-content: center;
+  gap: 24px; margin-top: 20px;
+  background: white; border: 1px solid var(--border);
+  border-radius: 20px; padding: 14px 32px;
+  max-width: 420px; margin: 20px auto 0;
+  box-shadow: 0 4px 20px rgba(192,86,106,0.08);
+}
+.streak-item { text-align: center; }
+.streak-num {
+  font-family: 'Playfair Display', serif;
+  font-size: 1.2rem; color: var(--rose);
+  font-style: italic;
+}
+.streak-label {
+  font-size: 0.58rem; color: var(--muted);
+  letter-spacing: 0.12em; text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  margin-top: 3px;
+}
+.streak-divider {
+  width: 1px; height: 30px;
+  background: var(--border);
+}
+.milestone {
+  margin-top: 10px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; font-size: 0.82rem;
+  color: var(--rose); letter-spacing: 0.08em;
+}
+
+/* LOADER */
+.loader-dots {
+  display: flex; gap: 6px; align-items: center;
+}
+.loader-dots span {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--rose); display: inline-block;
+  animation: dotBounce 1.2s ease-in-out infinite;
+}
+.loader-dots span:nth-child(2) { animation-delay: 0.2s; background: var(--gold); }
+.loader-dots span:nth-child(3) { animation-delay: 0.4s; background: var(--rose2); }
+
+@keyframes dotBounce {
+  0%,100% { transform: translateY(0); opacity:0.5; }
+  50%      { transform: translateY(-8px); opacity:1; }
+}
+@keyframes pulse {
+  0%,100% { opacity:0.7; }
+  50%      { opacity:1; text-shadow:0 0 20px rgba(192,86,106,0.3); }
+}
+
+/* MOOD OF THE DAY */
+.motd-card {
+  max-width: 480px; margin: 20px auto 0;
+  background: white; border: 1px solid var(--border);
+  border-radius: 16px; padding: 24px 32px;
+  text-align: center;
+  box-shadow: 0 6px 30px rgba(192,86,106,0.08);
+  animation: fadeUp 0.8s ease both 0.3s;
+}
+.motd-label {
+  font-size: 0.58rem; letter-spacing: 0.22em;
+  color: var(--muted); text-transform: uppercase;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; margin-bottom: 12px;
+}
+.motd-emoji { font-size: 2.2rem; margin-bottom: 6px; }
+.motd-name {
+  font-style: italic; font-size: 1.4rem;
+  color: var(--rose); letter-spacing: 0.08em;
+}
+.motd-urdu {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 0.88rem; color: var(--text2); margin-top: 4px;
+}
+.motd-line {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 0.92rem; color: var(--text);
+  line-height: 2; margin: 14px 0;
+  direction: rtl; text-align: right;
+  background: var(--bg2); border-radius: 10px;
+  padding: 10px 16px;
+  border-left: 3px solid var(--rose);
+}
+.motd-btn {
+  display: inline-block; margin-top: 8px;
+  padding: 8px 24px; background: var(--rose);
+  color: white; text-decoration: none;
+  border-radius: 20px; font-style: italic;
+  font-size: 0.78rem; letter-spacing: 0.1em;
+  transition: all 0.2s;
+  box-shadow: 0 4px 16px rgba(192,86,106,0.25);
+}
+.motd-btn:hover {
+  box-shadow: 0 6px 24px rgba(192,86,106,0.4);
+  transform: translateY(-2px);
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(12px); }
+  to   { opacity:1; transform:none; }
+}
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+
+  /* Navbar */
+  .navbar {
+    padding: 0 16px;
+    flex-wrap: wrap;
+    height: auto;
+    padding: 10px 16px;
+    gap: 8px;
+  }
+  .nav-right {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    font-size: 0.65rem;
+  }
+  .nav-right a { font-size: 0.65rem !important; margin-right: 6px !important; }
+
+  /* Hero */
+  .hero { padding: 32px 16px 24px; }
+  .hero-title { font-size: 1.8rem; }
+
+  /* Streak bar */
+  .streak-bar {
+    padding: 12px 16px;
+    gap: 14px;
+  }
+  .streak-num { font-size: 1rem; }
+
+  /* Mood of day */
+  .motd-card { padding: 18px 16px; margin: 16px 12px 0; }
+
+  /* Cards grid — 1 column on mobile */
+  .cards-grid {
+    grid-template-columns: 1fr !important;
+    padding: 20px 16px;
+    gap: 16px;
+  }
+
+  /* Search bar */
+  .search-bar { margin: 0 12px; }
+}
+
+@media (max-width: 480px) {
+  .hero-title { font-size: 1.5rem; }
+  .nav-brand { font-size: 1rem; }
+  .cards-grid { padding: 16px 12px; }
+}
+
+  </style>
+</head>
+<body>
+
+  <!-- LOADING SCREEN -->
+<div id="loader" style="
+  position:fixed; inset:0; z-index:9999;
+  background:var(--bg);
+  display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap:16px;
+  transition:opacity 0.6s ease, visibility 0.6s ease;
+">
+  <div style="
+    font-family:'Playfair Display',serif; font-style:italic;
+    font-size:2rem; color:var(--rose); letter-spacing:0.12em;
+    animation:pulse 1.5s ease-in-out infinite;
+  ">✦ Sukhan</div>
+  <div style="
+    font-family:'Noto Nastaliq Urdu',serif;
+    font-size:0.9rem; color:var(--muted);
+  ">سخن — آپ کی شاعری لوڈ ہو رہی ہے</div>
+  <div class="loader-dots">
+    <span></span><span></span><span></span>
+  </div>
+</div>
+
+  <div class="shimmer-line"></div>
+  <div class="bg-layer"></div>
+
+  <!-- FLOATING PETALS -->
+  <div class="petals">
+    <span class="petal">🌸</span>
+    <span class="petal">🌹</span>
+    <span class="petal">🌸</span>
+    <span class="petal">✿</span>
+    <span class="petal">🌸</span>
+    <span class="petal">🌹</span>
+    <span class="petal">🌸</span>
+    <span class="petal">✿</span>
+    <span class="petal">🌸</span>
+    <span class="petal">🌹</span>
+  </div>
+
+  <!-- NAVBAR -->
+  <nav class="navbar">
+    <div class="nav-brand">
+      <span class="nav-crown">✦ ♛ ✦</span>
+      Sukhan
+      <span class="nav-brand-ur">· سخن</span>
+    </div>
+    <div class="nav-right" style="display:flex;align-items:center;gap:16px;">
+  <a href="/explore" style="color:var(--rose);text-decoration:none;font-style:italic;margin-right:16px;">🌍 Explore</a>    
+  <a href="/profile" style="color:var(--rose);text-decoration:none;font-style:italic;">👑 Profile</a>
+  <a href="/favorites" style="color:var(--rose);text-decoration:none;font-style:italic;">⭐ Favorites</a>
+  <a href="/logout" style="color:var(--muted);text-decoration:none;font-style:italic;font-size:0.75rem;">Logout</a>
+</div>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-crown">✦ &nbsp; ♛ &nbsp; ✦</div>
+    <div class="hero-title">Your Poetry, Your World</div>
+    <div class="hero-sub">چار رنگ، ایک دل، بے شمار الفاظ</div>
+    <div class="hero-ornament">❧ &nbsp; ❦ &nbsp; ❧</div>
+  </div>
+
+  <!-- STREAK -->
+<div class="streak-bar">
+  <div class="streak-item">
+    <div class="streak-num">🔥 {{ streak.current }}</div>
+    <div class="streak-label">Day Streak</div>
+  </div>
+  <div class="streak-divider"></div>
+  <div class="streak-item">
+    <div class="streak-num">🏆 {{ streak.longest }}</div>
+    <div class="streak-label">Longest Streak</div>
+  </div>
+  <div class="streak-divider"></div>
+  <div class="streak-item">
+    <div class="streak-num">📝 {{ sections|sum(attribute='poem_count') }}</div>
+    <div class="streak-label">Total Poems</div>
+  </div>
+</div>
+
+{% if streak.current >= 7 %}
+<div class="milestone">🏆 7 Day Streak — Kamaal ho Areeba!</div>
+{% elif streak.current >= 3 %}
+<div class="milestone">🔥 {{ streak.current }} din se likh rahi ho — Shabash!</div>
+{% endif %}
+
+<!-- MOOD OF THE DAY -->
+<div class="motd-card">
+  <div class="motd-label">✦ Mood of the Day</div>
+  <div class="motd-emoji">{{ mood_of_day.emoji }}</div>
+  <div class="motd-name">{{ mood_of_day.label }}</div>
+  <div class="motd-urdu">{{ mood_of_day.urdu }}</div>
+  <div class="motd-line">{{ mood_of_day.line }}</div>
+  <a href="/section/{{ mood_of_day.key }}" class="motd-btn">
+    Write in {{ mood_of_day.label }} →
+  </a>
+</div>
+
+<!-- SEARCH BAR -->
+<form action="/search" method="GET" style="margin-top:20px;">
+  <div class="search-bar">
+    <input type="text" name="q" placeholder="Search your poems..." 
+           class="search-input" autocomplete="off"/>
+    <button type="submit" class="search-btn">🔍</button>
+  </div>
+</form>
+  <!-- CARDS -->
+  <div class="cards-grid">
+    {% for section in sections %}
+    <a href="/section/{{ section.key }}" class="mood-card card-{{ section.key }}">
+
+      <div class="card-header">
+        <div class="card-emoji">{{ section.emoji }}</div>
+        <div class="card-count">{{ section.poem_count }} poems</div>
+      </div>
+
+      <div class="card-title">{{ section.label }}</div>
+      <div class="card-urdu">{{ section.tagline }}</div>
+
+      <div class="card-ai">
+        <div class="ai-label">
+          <span class="ai-chip">AI</span> Today's Line
+        </div>
+        <div class="ai-line">{{ section.ai_line }}</div>
+      </div>
+
+      <div class="card-footer">
+        <span class="open-link">Open Section →</span>
+        <span class="poem-badge">
+          {% if section.poem_count == 0 %}Start writing{% else %}{{ section.poem_count }} saved{% endif %}
+        </span>
+      </div>
+
+    </a>
+    {% endfor %}
+  </div>
+
+  <!-- FOOTER -->
+  <div class="page-footer">
+    ✦ &nbsp; Sukhan · سخن &nbsp; · &nbsp; Areeba's Poetry Diary &nbsp; ✦
+  </div>
+
+  <script>
+  // Hide loader when page loads
+  window.addEventListener('load', function() {
+    const loader = document.getElementById('loader');
+    setTimeout(() => {
+      loader.style.opacity = '0';
+      loader.style.visibility = 'hidden';
+    }, 800);
+  });
+</script>
+</body>
+</html>

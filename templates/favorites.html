@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Favorites — Sukhan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Playfair Display',serif; min-height:100vh; }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--rose),var(--gold2),var(--rose),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:10%; animation-duration:14s; animation-delay:0s;  font-size:0.9rem; }
+    .petal:nth-child(2){ left:50%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:80%; animation-duration:12s; animation-delay:6s;  font-size:0.8rem; }
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; } 90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .navbar {
+      position:sticky; top:0; z-index:100;
+      background:rgba(253,248,245,0.93); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; padding:0 28px; height:52px; gap:14px;
+      box-shadow:0 2px 20px rgba(192,86,106,0.07);
+    }
+    .back-btn {
+      text-decoration:none; padding:5px 14px;
+      border:1px solid var(--border); border-radius:20px;
+      color:var(--text2); font-size:0.72rem; letter-spacing:0.1em;
+      transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .back-btn:hover { color:var(--rose); border-color:var(--rose); }
+    .nav-title { font-style:italic; font-size:1.1rem; color:var(--rose); }
+
+    .main { max-width:780px; margin:0 auto; padding:40px 24px; position:relative; z-index:1; }
+
+    .page-heading {
+      text-align:center; margin-bottom:32px;
+    }
+    .page-heading h1 {
+      font-style:italic; font-size:2rem; color:var(--rose);
+      letter-spacing:0.06em; margin-bottom:6px;
+    }
+    .page-heading p {
+      font-family:'Noto Nastaliq Urdu',serif; font-size:0.88rem; color:var(--text2);
+    }
+
+    .fav-card {
+      background:white; border:1px solid var(--border);
+      border-radius:12px; padding:22px 26px;
+      margin-bottom:18px; overflow:hidden;
+      box-shadow:0 4px 20px rgba(192,86,106,0.06);
+      transition:all 0.2s;
+    }
+    .fav-card:hover { transform:translateY(-3px); box-shadow:0 8px 30px rgba(192,86,106,0.12); }
+
+    .fav-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+    .fav-title { font-style:italic; font-size:1.05rem; }
+    .fav-mood {
+      font-size:0.6rem; padding:3px 10px; border-radius:10px;
+      letter-spacing:0.1em; font-family:'Cormorant Garamond',serif;
+    }
+    .mood-love    { color:#c0566a; border:1px solid rgba(192,86,106,0.3); }
+    .mood-reality { color:#4a64a8; border:1px solid rgba(74,100,168,0.3); }
+    .mood-happy   { color:#9a6c10; border:1px solid rgba(200,144,32,0.3); }
+    .mood-sad     { color:#6050a8; border:1px solid rgba(96,80,168,0.3);  }
+    .mood-dosti   { color:#2e8b57; border:1px solid rgba(46,139,87,0.3);  }
+
+    .fav-title.mood-love    { color:#c0566a; }
+    .fav-title.mood-reality { color:#4a64a8; }
+    .fav-title.mood-happy   { color:#9a6c10; }
+    .fav-title.mood-sad     { color:#6050a8; }
+    .fav-title.mood-dosti   { color:#2e8b57; }
+
+    .fav-polaroid {
+      float:left; margin:0 18px 10px 0;
+      background:white; padding:6px 6px 20px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      border-radius:2px; transform:rotate(-1.5deg);
+      max-width:110px; transition:transform 0.2s;
+    }
+    .fav-polaroid:hover { transform:rotate(0deg) scale(1.04); }
+    .fav-polaroid img { width:98px; height:98px; object-fit:cover; display:block; }
+
+    .fav-text {
+      font-family:'Noto Nastaliq Urdu',serif; font-size:0.92rem;
+      line-height:2.4; color:var(--text2); text-align:right; direction:rtl;
+      display:-webkit-box; -webkit-line-clamp:4;
+      -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .fav-footer {
+      display:flex; justify-content:space-between; align-items:center;
+      margin-top:12px; clear:both;
+    }
+    .fav-date { font-size:0.6rem; color:var(--muted); letter-spacing:0.05em; font-family:'Cormorant Garamond',serif; }
+    .fav-actions { display:flex; gap:8px; }
+    .fav-btn {
+      font-size:0.62rem; color:var(--muted); text-decoration:none;
+      border:1px solid var(--border); padding:3px 12px;
+      border-radius:12px; transition:all 0.2s;
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .fav-btn:hover { color:var(--rose); border-color:var(--rose); }
+
+    .empty-state {
+      text-align:center; padding:60px 20px;
+      color:var(--muted); font-style:italic; line-height:2.5;
+    }
+    .empty-emoji { font-size:2.5rem; margin-bottom:12px; }
+  </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">⭐</span>
+  <span class="petal">🌸</span>
+  <span class="petal">⭐</span>
+</div>
+
+<nav class="navbar">
+  <a href="/" class="back-btn">← Home</a>
+  <div class="nav-title">⭐ Favorites</div>
+</nav>
+
+<div class="main">
+  <div class="page-heading">
+    <h1>⭐ Favorite Poems</h1>
+    <p>آپ کی پسندیدہ نظمیں</p>
+  </div>
+
+  {% if poems %}
+    {% for poem in poems %}
+    <div class="fav-card">
+      <div class="fav-header">
+        <div class="fav-title mood-{{ poem[1] }}">{{ poem[2] }}</div>
+        <span class="fav-mood mood-{{ poem[1] }}">
+          {% if poem[1] == 'love' %}🌹 Love
+          {% elif poem[1] == 'reality' %}🌍 Reality
+          {% elif poem[1] == 'happy' %}😊 Happy
+          {% elif poem[1] == 'dosti' %}🤝 Dosti
+          {% else %}💔 Sad{% endif %}
+        </span>
+      </div>
+      {% if poem[5] %}
+      <div class="fav-polaroid">
+        <img src="/static/uploads/{{ poem[5] }}" alt="poem image"/>
+      </div>
+      {% endif %}
+      <div class="fav-text">{{ poem[3] }}</div>
+      <div class="fav-footer">
+        <span class="fav-date">{{ poem[4] }}</span>
+        <div class="fav-actions">
+          <a href="/card/{{ poem[0] }}" class="fav-btn">🎨 Card</a>
+          <a href="/section/{{ poem[1] }}" class="fav-btn">Open →</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-state">
+      <div class="empty-emoji">⭐</div>
+      Abhi koi favorite nahi hai!<br/>
+      <span style="font-size:0.75rem;">Kisi poem par ☆ Favorite click karo!</span>
+    </div>
+  {% endif %}
+</div>
+</body>
+</html>

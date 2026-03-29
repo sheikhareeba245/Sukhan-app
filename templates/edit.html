@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Edit Poem — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:    #fdf8f5;
+      --bg2:   #faf0ea;
+      --text:  #3d1f14;
+      --text2: #9b6248;
+      --muted: #c4997a;
+      --border:rgba(192,86,106,0.15);
+      --gold:  #c9954a;
+      --gold2: #e8c17a;
+      --rose:  #c0566a;
+      --rose2: #e0889a;
+
+      --mood-accent:  #c0566a;
+      --mood-surface: #fce8ec;
+      --mood-border:  rgba(192,86,106,0.2);
+    }
+
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; background:var(--bg); color:var(--text); font-family:'Playfair Display',serif; }
+
+    /* Top shimmer */
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--mood-accent),var(--gold2),var(--mood-accent),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    /* Petals */
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:10%; animation-duration:14s; animation-delay:0s;  font-size:0.9rem; }
+    .petal:nth-child(2){ left:40%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:70%; animation-duration:12s; animation-delay:6s;  font-size:0.8rem; }
+    .petal:nth-child(4){ left:85%; animation-duration:15s; animation-delay:1s;  font-size:1.1rem; }
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; }
+      90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    /* NAVBAR */
+    .navbar {
+      position:fixed; top:0; left:0; right:0; height:52px; z-index:100;
+      background:rgba(253,248,245,0.93); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; padding:0 28px; gap:14px;
+      box-shadow:0 2px 20px rgba(192,86,106,0.07);
+    }
+    .back-btn {
+      text-decoration:none; padding:5px 14px;
+      border:1px solid var(--border); border-radius:20px;
+      color:var(--text2); font-size:0.72rem; letter-spacing:0.1em;
+      transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .back-btn:hover { color:var(--mood-accent); border-color:var(--mood-accent); }
+    .nav-title { font-style:italic; font-size:1.1rem; color:var(--mood-accent); }
+
+    /* MAIN */
+    .main {
+      position:fixed; top:52px; left:0; right:0; bottom:0;
+      display:flex; justify-content:center; align-items:flex-start;
+      overflow-y:auto; padding:40px 20px; z-index:1;
+    }
+
+    .edit-card {
+      background:white; border:1px solid var(--border);
+      border-radius:16px; padding:40px 48px;
+      width:100%; max-width:700px;
+      box-shadow:0 8px 40px rgba(192,86,106,0.1);
+      animation:cardIn 0.6s ease both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+
+    .edit-heading {
+      font-style:italic; font-size:1.6rem;
+      color:var(--mood-accent); margin-bottom:6px;
+      letter-spacing:0.05em;
+    }
+    .edit-sub {
+      font-size:0.72rem; color:var(--muted);
+      letter-spacing:0.1em; font-family:'Cormorant Garamond',serif;
+      font-style:italic; margin-bottom:28px;
+    }
+
+    .ornament {
+      text-align:center; color:var(--gold);
+      font-size:0.75rem; letter-spacing:0.5em;
+      opacity:0.4; margin:16px 0;
+    }
+
+    .field-title {
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:1.5rem; color:var(--mood-accent);
+      background:transparent; border:none; outline:none;
+      width:100%; border-bottom:1px solid var(--border);
+      padding-bottom:12px; letter-spacing:0.04em;
+      transition:border-color 0.2s;
+    }
+    .field-title:focus { border-bottom-color:var(--mood-accent); }
+    .field-title::placeholder { color:var(--muted); }
+
+    .field-content {
+      font-family:'Noto Nastaliq Urdu',serif;
+      font-size:1.08rem; line-height:2.8;
+      color:var(--text); background:transparent;
+      border:none; outline:none; resize:none;
+      width:100%; min-height:280px;
+      text-align:right; direction:rtl;
+      caret-color:var(--mood-accent);
+      border-bottom:1px solid var(--border);
+      transition:border-color 0.2s;
+    }
+    .field-content:focus { border-bottom-color:var(--mood-accent); }
+    .field-content::placeholder { color:var(--muted); }
+
+    .btn-row {
+      display:flex; gap:12px; margin-top:24px; justify-content:flex-end;
+    }
+    .btn-cancel {
+      padding:9px 24px; background:transparent;
+      border:1px solid var(--border); color:var(--text2);
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.78rem; letter-spacing:0.1em;
+      cursor:pointer; border-radius:20px; transition:all 0.2s;
+      text-decoration:none; display:flex; align-items:center;
+    }
+    .btn-cancel:hover { border-color:var(--muted); color:var(--text); }
+    .btn-save {
+      padding:9px 28px;
+      background:var(--mood-accent); color:white;
+      border:none; font-family:'Playfair Display',serif;
+      font-style:italic; font-size:0.78rem; letter-spacing:0.12em;
+      cursor:pointer; border-radius:20px; transition:all 0.2s;
+      box-shadow:0 4px 16px rgba(192,86,106,0.25);
+    }
+    .btn-save:hover { box-shadow:0 6px 24px rgba(192,86,106,0.4); transform:translateY(-1px); }
+  </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">🌸</span>
+  <span class="petal">✿</span>
+  <span class="petal">🌸</span>
+  <span class="petal">🌹</span>
+</div>
+
+<nav class="navbar">
+  <a href="/section/{{ poem.mood }}" class="back-btn"></a>
+  <div class="nav-title">✏️ Edit Poem</div>
+</nav>
+
+<div class="main">
+  <div class="edit-card">
+    <div class="edit-heading">Edit Your Poem</div>
+    <div class="edit-sub">Make your changes below ✦</div>
+
+    <form method="POST" action="/update/{{ poem.id }}">
+  <input type="hidden" name="mood" value="{{ poem.mood }}"/>
+  <input class="field-title" type="text" name="title"
+    value="{{ poem.title }}" placeholder="Poem title..." required/>
+  <textarea class="field-content" name="content"
+    placeholder="یہاں لکھیں..." rows="12" required>{{ poem.content }}</textarea>
+
+      <div class="btn-row">
+        <a href="/section/{{ poem.mood }}" class="btn-cancel"></a>
+        <button class="btn-save" type="submit">Save Changes ✦</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const themes = {
+    love:    { accent:'#c0566a', surface:'#fce8ec', border:'rgba(192,86,106,0.2)' },
+    reality: { accent:'#4a64a8', surface:'#eaedfa', border:'rgba(74,100,168,0.2)' },
+    happy:   { accent:'#9a6c10', surface:'#fdf5d8', border:'rgba(200,144,32,0.2)' },
+    sad:     { accent:'#6050a8', surface:'#ede8fa', border:'rgba(96,80,168,0.2)'  },
+    dosti: { accent:'#2e8b57', surface:'#e0f5e9', border:'rgba(46,139,87,0.2)' },
+  };
+  const key = '{{ poem.mood }}';
+  const t = themes[key] || themes.love;
+  const r = document.documentElement.style;
+  r.setProperty('--mood-accent',  t.accent);
+  r.setProperty('--mood-surface', t.surface);
+  r.setProperty('--mood-border',  t.border);
+</script>
+</body>
+</html>

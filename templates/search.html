@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Search — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a;
+      --rose:#c0566a; --rose2:#e0889a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Playfair Display',serif; min-height:100vh; }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--rose),var(--gold2),var(--rose),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:10%; animation-duration:14s; animation-delay:0s;  font-size:0.9rem; }
+    .petal:nth-child(2){ left:50%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:80%; animation-duration:12s; animation-delay:6s;  font-size:0.8rem; }
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; }
+      90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .navbar {
+      position:sticky; top:0; z-index:100;
+      background:rgba(253,248,245,0.93); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; padding:0 28px; height:52px; gap:14px;
+      box-shadow:0 2px 20px rgba(192,86,106,0.07);
+    }
+    .back-btn {
+      text-decoration:none; padding:5px 14px;
+      border:1px solid var(--border); border-radius:20px;
+      color:var(--text2); font-size:0.72rem; letter-spacing:0.1em;
+      transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .back-btn:hover { color:var(--rose); border-color:var(--rose); }
+    .nav-title { font-style:italic; font-size:1.1rem; color:var(--rose); }
+
+    .main {
+      position:relative; z-index:1;
+      max-width:780px; margin:0 auto; padding:40px 24px;
+    }
+
+    /* Search bar */
+    .search-form { margin-bottom:36px; }
+    .search-bar {
+      display:flex; align-items:center;
+      background:white; border:1px solid var(--border);
+      border-radius:25px; overflow:hidden;
+      box-shadow:0 4px 20px rgba(192,86,106,0.1);
+      transition:box-shadow 0.2s;
+    }
+    .search-bar:focus-within { box-shadow:0 4px 30px rgba(192,86,106,0.22); border-color:var(--rose); }
+    .search-input {
+      flex:1; padding:12px 22px;
+      border:none; outline:none;
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.95rem; color:var(--text); background:transparent;
+      letter-spacing:0.06em;
+    }
+    .search-input::placeholder { color:var(--muted); }
+    .search-btn {
+      padding:11px 20px; background:var(--rose);
+      border:none; cursor:pointer; font-size:0.95rem; transition:background 0.2s;
+    }
+    .search-btn:hover { background:var(--rose2); }
+
+    /* Results heading */
+    .results-heading {
+      font-style:italic; font-size:1rem; color:var(--text2);
+      letter-spacing:0.08em; margin-bottom:20px;
+      font-family:'Cormorant Garamond',serif;
+      display:flex; align-items:center; gap:8px;
+    }
+    .result-count {
+      background:var(--rose); color:white;
+      font-size:0.65rem; padding:2px 8px;
+      border-radius:10px; font-style:normal;
+      letter-spacing:0.08em;
+    }
+
+    /* Result card */
+    .result-card {
+      background:white; border:1px solid var(--border);
+      border-radius:12px; padding:20px 24px;
+      margin-bottom:16px; text-decoration:none; color:inherit;
+      display:block; transition:all 0.2s;
+      box-shadow:0 4px 16px rgba(192,86,106,0.05);
+      overflow:hidden;
+    }
+    .result-card:hover { transform:translateY(-3px); box-shadow:0 8px 28px rgba(192,86,106,0.12); }
+
+    .result-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+    .result-title { font-style:italic; font-size:1.1rem; }
+    .result-mood {
+      font-size:0.6rem; padding:3px 10px;
+      border-radius:10px; letter-spacing:0.1em;
+      font-family:'Cormorant Garamond',serif;
+    }
+
+    /* Mood colors */
+    .mood-love    { color:#c0566a; border:1px solid rgba(192,86,106,0.3); }
+    .mood-reality { color:#4a64a8; border:1px solid rgba(74,100,168,0.3); }
+    .mood-happy   { color:#9a6c10; border:1px solid rgba(200,144,32,0.3); }
+    .mood-sad     { color:#6050a8; border:1px solid rgba(96,80,168,0.3);  }
+    .mood-dosti   { color:#2e8b57; border:1px solid rgba(46,139,87,0.3);  }
+
+    .result-title.mood-love    { color:#c0566a; }
+    .result-title.mood-reality { color:#4a64a8; }
+    .result-title.mood-happy   { color:#9a6c10; }
+    .result-title.mood-sad     { color:#6050a8; }
+    .result-title.mood-dosti   { color:#2e8b57; }
+
+    /* Polaroid in result */
+    .result-polaroid {
+      float:left; margin:0 16px 8px 0;
+      background:white; padding:6px 6px 20px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.1);
+      border-radius:2px; transform:rotate(-1.5deg);
+      max-width:110px; transition:transform 0.2s;
+    }
+    .result-polaroid:hover { transform:rotate(0deg) scale(1.04); }
+    .result-polaroid img { width:98px; height:98px; object-fit:cover; display:block; }
+
+    .result-preview {
+      font-family:'Noto Nastaliq Urdu',serif; font-size:0.9rem;
+      line-height:2.3; color:var(--text2);
+      text-align:right; direction:rtl;
+      display:-webkit-box; -webkit-line-clamp:3;
+      -webkit-box-orient:vertical; overflow:hidden;
+    }
+    .result-date { font-size:0.6rem; color:var(--muted); margin-top:8px; letter-spacing:0.05em; font-family:'Cormorant Garamond',serif; clear:both; }
+
+    /* No results */
+    .no-results {
+      text-align:center; padding:60px 20px;
+      color:var(--muted); font-style:italic; line-height:2.2;
+    }
+    .no-results-emoji { font-size:2.5rem; margin-bottom:12px; }
+
+    /* Empty state */
+    .empty-state {
+      text-align:center; padding:60px 20px;
+      color:var(--muted); font-style:italic; line-height:2.2;
+    }
+  </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">🌸</span>
+  <span class="petal">✿</span>
+  <span class="petal">🌹</span>
+</div>
+
+<nav class="navbar">
+  <a href="/" class="back-btn">← Home</a>
+  <div class="nav-title">🔍 Search Poems</div>
+</nav>
+
+<div class="main">
+
+  <!-- Search form -->
+  <form action="/search" method="GET" class="search-form">
+    <div class="search-bar">
+      <input type="text" name="q" class="search-input"
+             placeholder="Search by title or words..."
+             value="{{ query }}" autocomplete="off"/>
+      <button type="submit" class="search-btn">🔍</button>
+    </div>
+  </form>
+
+  <!-- Results -->
+  {% if query %}
+    {% if results %}
+      <div class="results-heading">
+        Results for "{{ query }}"
+        <span class="result-count">{{ results|length }} found</span>
+      </div>
+
+      {% for poem in results %}
+      <a href="/section/{{ poem[1] }}" class="result-card">
+        <div class="result-header">
+          <div class="result-title mood-{{ poem[1] }}">{{ poem[2] }}</div>
+          <span class="result-mood mood-{{ poem[1] }}">
+            {% if poem[1] == 'love' %}🌹 Love
+            {% elif poem[1] == 'reality' %}🌍 Reality
+            {% elif poem[1] == 'happy' %}😊 Happy
+            {% elif poem[1] == 'dosti' %}🤝 Dosti
+            {% else %}💔 Sad{% endif %}
+          </span>
+        </div>
+        {% if poem[5] %}
+        <div class="result-polaroid">
+          <img src="/static/uploads/{{ poem[5] }}" alt="poem image"/>
+        </div>
+        {% endif %}
+        <div class="result-preview">{{ poem[3] }}</div>
+        <div class="result-date">{{ poem[4] }}</div>
+      </a>
+      {% endfor %}
+
+    {% else %}
+      <div class="no-results">
+        <div class="no-results-emoji">🌸</div>
+        No poems found for "{{ query }}"<br/>
+        <span style="font-size:0.75rem;">Try different words!</span>
+      </div>
+    {% endif %}
+
+  {% else %}
+    <div class="empty-state">
+      <div style="font-size:2rem; margin-bottom:12px;">🔍</div>
+      Search your poetry diary...<br/>
+      <span style="font-size:0.75rem; font-family:'Noto Nastaliq Urdu',serif;">
+        اپنی نظمیں تلاش کریں
+      </span>
+    </div>
+  {% endif %}
+
+</div>
+</body>
+</html>

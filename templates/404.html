@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>404 — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'Playfair Display',serif;
+      min-height:100vh; display:flex;
+      align-items:center; justify-content:center;
+      text-align:center;
+    }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--rose),var(--gold2),var(--rose),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:10%; animation-duration:14s; animation-delay:0s;  font-size:0.9rem; }
+    .petal:nth-child(2){ left:50%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:80%; animation-duration:12s; animation-delay:6s;  font-size:0.8rem; }
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; } 90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .container {
+      position:relative; z-index:1;
+      display:flex; flex-direction:column;
+      align-items:center; gap:20px;
+      padding:40px; max-width:500px;
+      background:white; border:1px solid var(--border);
+      border-radius:20px;
+      box-shadow:0 12px 50px rgba(192,86,106,0.1);
+      animation:cardIn 0.7s ease both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+    .error-top {
+      font-size:0.6rem; letter-spacing:0.3em; color:var(--muted);
+      text-transform:uppercase; font-family:'Cormorant Garamond',serif;
+    }
+
+    .error-num {
+      font-style:italic; font-size:5rem; color:var(--rose);
+      letter-spacing:0.1em; line-height:1;
+      text-shadow:0 4px 20px rgba(192,86,106,0.2);
+    }
+
+    .error-emoji { font-size:3rem; animation:float 3s ease-in-out infinite; }
+    @keyframes float {
+      0%,100% { transform:translateY(0); }
+      50%      { transform:translateY(-10px); }
+    }
+
+    .error-title {
+      font-style:italic; font-size:1.4rem; color:var(--text);
+      letter-spacing:0.06em;
+    }
+
+    .error-ur {
+      font-family:'Noto Nastaliq Urdu',serif;
+      font-size:0.95rem; color:var(--text2); direction:rtl;
+      line-height:1.8;
+    }
+
+    .error-sub {
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.82rem; color:var(--muted); letter-spacing:0.08em;
+      line-height:1.8;
+    }
+
+    .home-btn {
+      padding:11px 32px;
+      background:var(--rose); color:white;
+      text-decoration:none; border-radius:25px;
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:0.85rem; letter-spacing:0.12em;
+      box-shadow:0 6px 24px rgba(192,86,106,0.3);
+      transition:all 0.2s; margin-top:8px;
+    }
+    .home-btn:hover {
+      box-shadow:0 8px 32px rgba(192,86,106,0.45);
+      transform:translateY(-2px);
+    }
+
+    .divider {
+      width:60px; height:1px;
+      background:linear-gradient(90deg,transparent,var(--gold),transparent);
+    }
+  </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">🌸</span>
+  <span class="petal">✿</span>
+  <span class="petal">🌹</span>
+</div>
+
+<div class="container">
+  <div class="error-top">✦ Sukhan · سخن ✦</div>
+  <div class="error-num">404</div>
+  <div class="error-emoji">🌹</div>
+  <div class="error-title">Page Not Found</div>
+  <div class="divider"></div>
+  <div class="error-ur">
+    یہ صفحہ موجود نہیں —<br/>
+    شاید یہ لمحہ ابھی لکھا نہیں گیا
+  </div>
+  <div class="error-sub">
+    The page you're looking for doesn't exist.<br/>
+    Let's go back to your poetry world! 🌸
+  </div>
+  <a href="/" class="home-btn">← Back to Home</a>
+</div>
+
+</body>
+</html>

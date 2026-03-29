@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>{{ key|title }} — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+      --mood-accent:#c0566a; --mood-accent2:#e0889a;
+      --mood-bg:#fff5f7; --mood-surface:#fce8ec;
+      --mood-border:rgba(192,86,106,0.2);
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; overflow:hidden; background:var(--bg); color:var(--text); font-family:'Playfair Display',serif; }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--mood-accent),var(--gold2),var(--mood-accent),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:5%;  animation-duration:14s; animation-delay:0s;  font-size:0.8rem; }
+    .petal:nth-child(2){ left:25%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:50%; animation-duration:12s; animation-delay:6s;  font-size:0.9rem; }
+    .petal:nth-child(4){ left:75%; animation-duration:15s; animation-delay:1s;  font-size:1.1rem; }
+    .petal:nth-child(5){ left:90%; animation-duration:13s; animation-delay:4s;  font-size:0.85rem;}
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; }
+      90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .navbar {
+      position:fixed; top:0; left:0; right:0; height:52px; z-index:100;
+      background:rgba(253,248,245,0.93); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; padding:0 28px; gap:14px;
+      box-shadow:0 2px 20px rgba(192,86,106,0.07);
+    }
+    .back-btn {
+      text-decoration:none; padding:5px 14px;
+      border:1px solid var(--border); border-radius:20px;
+      color:var(--text2); font-size:0.72rem; letter-spacing:0.1em;
+      transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .back-btn:hover { color:var(--mood-accent); border-color:var(--mood-accent); }
+    .nav-title { font-style:italic; font-size:1.1rem; color:var(--mood-accent); }
+    .nav-poem-count { margin-left:auto; font-size:0.65rem; color:var(--muted); letter-spacing:0.1em; font-family:'Cormorant Garamond',serif; font-style:italic; }
+
+    .workspace {
+      position:fixed; top:52px; left:0; right:0; bottom:0; z-index:1;
+      display:grid; grid-template-columns:250px 1fr 250px;
+    }
+
+    /* SIDEBAR */
+    .sidebar { background:var(--bg2); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+    .sidebar-top { padding:18px 16px 14px; border-bottom:1px solid var(--border); flex-shrink:0; }
+    .sidebar-heading { font-size:0.58rem; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; font-style:italic; font-family:'Cormorant Garamond',serif; margin-bottom:10px; }
+    .poem-list { flex:1; overflow-y:auto; }
+    .poem-item { padding:13px 16px; border-bottom:1px solid rgba(192,86,106,0.07); border-left:3px solid transparent; transition:all 0.2s; cursor:pointer; }
+    .poem-item:hover { background:rgba(192,86,106,0.04); border-left-color:var(--mood-accent); }
+    .pi-title { font-style:italic; font-size:0.88rem; color:var(--text); margin-bottom:3px; }
+    .pi-date  { font-size:0.6rem; color:var(--muted); letter-spacing:0.05em; font-family:'Cormorant Garamond',serif; }
+    .empty-state { padding:32px 16px; text-align:center; font-size:0.78rem; color:var(--muted); font-style:italic; line-height:2; }
+    .sidebar-stats { padding:14px 16px; border-top:1px solid var(--border); flex-shrink:0; display:flex; justify-content:space-around; }
+    .stat { text-align:center; }
+    .stat-n { font-family:'Playfair Display',serif; font-size:1.1rem; color:var(--mood-accent); }
+    .stat-l { font-size:0.55rem; color:var(--muted); letter-spacing:0.1em; text-transform:uppercase; }
+
+    /* EDITOR */
+    .editor { display:flex; flex-direction:column; overflow:hidden; background:var(--bg); border-left:1px solid rgba(192,86,106,0.08); border-right:1px solid rgba(192,86,106,0.08); }
+    .editor-topbar { padding:10px 28px; border-bottom:1px solid var(--border); background:var(--bg2); display:flex; align-items:center; gap:10px; flex-shrink:0; }
+    .topbar-label { font-style:italic; font-size:0.85rem; color:var(--mood-accent); }
+    .et-spacer { flex:1; }
+    .et-btn { padding:5px 16px; background:transparent; border:1px solid var(--border); color:var(--text2); font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.7rem; letter-spacing:0.1em; cursor:pointer; border-radius:20px; transition:all 0.2s; }
+    .et-btn:hover { color:var(--mood-accent); border-color:var(--mood-accent); }
+    .et-btn.save { background:var(--mood-accent); color:white; border-color:var(--mood-accent); box-shadow:0 4px 16px rgba(192,86,106,0.25); }
+    .et-btn.save:hover { box-shadow:0 6px 24px rgba(192,86,106,0.4); transform:translateY(-1px); }
+
+    .editor-body { flex:1; padding:28px 44px; overflow-y:auto; display:flex; flex-direction:column; gap:12px; }
+
+    .field-title { font-family:'Playfair Display',serif; font-style:italic; font-size:1.7rem; color:var(--mood-accent); background:transparent; border:none; outline:none; width:100%; border-bottom:1px solid var(--border); padding-bottom:14px; letter-spacing:0.04em; }
+    .field-title::placeholder { color:var(--muted); }
+
+    .ornament { text-align:center; color:var(--gold); font-size:0.75rem; letter-spacing:0.5em; opacity:0.4; }
+
+    .field-content { font-family:'Noto Nastaliq Urdu',serif; font-size:1.1rem; line-height:2.8; color:var(--text); background:transparent; border:none; outline:none; resize:none; width:100%; min-height:200px; text-align:right; direction:rtl; caret-color:var(--mood-accent); }
+    .field-content::placeholder { color:var(--muted); }
+
+    /* UPLOAD BOX */
+    .upload-box { margin:4px 0 8px; }
+    .upload-label {
+      display:flex; flex-direction:column; align-items:center; gap:6px;
+      padding:14px; border:2px dashed var(--border); border-radius:12px;
+      cursor:pointer; transition:all 0.2s; text-align:center;
+      background:rgba(255,255,255,0.5);
+    }
+    .upload-label:hover { border-color:var(--mood-accent); background:var(--mood-surface); }
+    .upload-icon { font-size:1.4rem; }
+    .upload-text { font-style:italic; font-size:0.82rem; color:var(--mood-accent); letter-spacing:0.08em; }
+    .upload-sub  { font-size:0.62rem; color:var(--muted); letter-spacing:0.08em; font-family:'Cormorant Garamond',serif; }
+
+    /* POLAROID PREVIEW */
+    .polaroid-preview {
+      display:inline-block; background:white;
+      padding:10px 10px 28px;
+      box-shadow:0 4px 20px rgba(0,0,0,0.12);
+      border-radius:2px; transform:rotate(-2deg);
+      margin-top:12px; max-width:180px;
+    }
+    .polaroid-preview img { width:160px; height:160px; object-fit:cover; display:block; }
+    .polaroid-caption { text-align:center; margin-top:8px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.75rem; color:var(--text2); letter-spacing:0.08em; }
+
+    /* SAVED POEMS */
+    .saved-section { padding:0 44px 28px; }
+    .saved-divider { display:flex; align-items:center; gap:12px; color:var(--muted); font-size:0.58rem; letter-spacing:0.2em; text-transform:uppercase; font-family:'Cormorant Garamond',serif; font-style:italic; margin-bottom:18px; }
+    .saved-divider::before,.saved-divider::after { content:''; flex:1; height:1px; background:var(--border); }
+
+    .saved-card { background:white; border:1px solid var(--border); border-radius:12px; padding:20px; margin-bottom:16px; box-shadow:0 4px 20px rgba(192,86,106,0.06); border-left:4px solid var(--mood-accent); overflow:hidden; }
+    .saved-card:hover { box-shadow:0 8px 30px rgba(192,86,106,0.12); }
+    .saved-header { display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; }
+    .saved-title { font-style:italic; font-size:1rem; color:var(--mood-accent); }
+    .saved-date  { font-size:0.6rem; color:var(--muted); letter-spacing:0.05em; font-family:'Cormorant Garamond',serif; }
+
+    /* POLAROID in saved card */
+    .poem-polaroid {
+      float:left; margin:0 18px 10px 0;
+      background:white; padding:8px 8px 24px;
+      box-shadow:0 4px 16px rgba(0,0,0,0.1);
+      border-radius:2px; transform:rotate(-1.5deg);
+      max-width:130px; transition:transform 0.2s;
+    }
+    .poem-polaroid:hover { transform:rotate(0deg) scale(1.04); }
+    .poem-polaroid img { width:114px; height:114px; object-fit:cover; display:block; }
+    .polaroid-label { text-align:center; margin-top:6px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.62rem; color:var(--text2); }
+
+    .saved-text { font-family:'Noto Nastaliq Urdu',serif; font-size:0.92rem; line-height:2.5; color:var(--text2); text-align:right; direction:rtl; white-space:pre-line; }
+    .saved-footer { display:flex; justify-content:flex-end; margin-top:10px; clear:both; gap:8px; }
+    .action-link { font-size:0.62rem; color:var(--muted); text-decoration:none; border:1px solid var(--border); padding:3px 12px; border-radius:12px; transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic; }
+    .action-link.edit:hover  { color:var(--mood-accent); border-color:var(--mood-accent); }
+    .action-link.delete:hover{ color:#c04050; border-color:rgba(200,80,80,0.5); background:#fff5f5; }
+
+    /* AI PANEL */
+    .ai-panel { background:var(--bg2); border-left:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+    .ai-panel-top { padding:16px; border-bottom:1px solid var(--border); flex-shrink:0; font-size:0.58rem; letter-spacing:0.2em; color:var(--muted); text-transform:uppercase; font-style:italic; font-family:'Cormorant Garamond',serif; display:flex; align-items:center; gap:6px; }
+    .ai-badge { font-size:0.5rem; padding:2px 6px; border:1px solid var(--mood-accent); color:var(--mood-accent); border-radius:8px; letter-spacing:0.1em; font-style:normal; }
+    .ai-panel-body { flex:1; overflow-y:auto; padding:16px; display:flex; flex-direction:column; gap:14px; }
+    .ai-box { background:white; border:1px solid var(--border); border-radius:12px; padding:16px; box-shadow:0 2px 16px rgba(192,86,106,0.05); }
+    .ai-box-label { font-size:0.58rem; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; margin-bottom:10px; font-family:'Cormorant Garamond',serif; }
+    .ai-today-line { font-family:'Noto Nastaliq Urdu',serif; font-size:0.92rem; line-height:2.1; color:var(--mood-accent); text-align:right; direction:rtl; font-weight:600; }
+    .section-about { font-size:0.76rem; color:var(--text2); line-height:1.9; font-style:italic; }
+
+    ::-webkit-scrollbar { width:4px; }
+    ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .action-link.card:hover { 
+    color: var(--gold); 
+    border-color: var(--gold); 
+    background: #fffdf0; 
+}
+.action-link.fav:hover { 
+    color: #e8b840; 
+    border-color: #e8b840; 
+    background: #fffdf0; 
+}
+.word-counter {
+  text-align: right;
+  font-size: 0.65rem; color: var(--muted);
+  letter-spacing: 0.1em; margin-top: 6px;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic; direction: ltr;
+  transition: color 0.2s;
+}
+ 
+ .public-toggle { margin: 8px 0; }
+.toggle-label {
+  display: flex; align-items: center; gap: 10px;
+  cursor: pointer; font-family:'Cormorant Garamond',serif;
+  font-style: italic; font-size: 0.78rem; color: var(--text2);
+}
+.toggle-switch {
+  width: 36px; height: 20px; background: var(--border);
+  border-radius: 10px; position: relative; transition: background 0.2s;
+  flex-shrink: 0;
+}
+.toggle-switch::after {
+  content:''; position:absolute; width:14px; height:14px;
+  background: white; border-radius: 50%; top:3px; left:3px;
+  transition: transform 0.2s;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+}
+input[type="checkbox"]:checked + .toggle-switch {
+  background: var(--mood-accent);
+}
+input[type="checkbox"]:checked + .toggle-switch::after {
+  transform: translateX(16px);
+}
+input[type="checkbox"] { display: none; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  .workspace {
+    grid-template-columns: 1fr !important;
+    grid-template-rows: auto 1fr auto;
+  }
+  .sidebar { display: none; }
+  .sec-ai { display: none; }
+  .editor { width: 100%; }
+  .editor-body { padding: 20px 16px; }
+  .field-title { font-size: 1.3rem; }
+  .field-content { font-size: 1rem; }
+  .saved-section { padding: 0 16px 20px; }
+  .editor-topbar { padding: 10px 16px; gap: 6px; }
+  .et-btn { padding: 4px 10px; font-size: 0.65rem; }
+}
+
+@media (max-width: 480px) {
+  .field-title { font-size: 1.1rem; }
+  .saved-card { padding: 14px 16px; }
+}
+
+ </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">🌸</span><span class="petal">✿</span>
+  <span class="petal">🌸</span><span class="petal">🌹</span>
+  <span class="petal">🌸</span>
+</div>
+
+<nav class="navbar">
+  <a href="/" class="back-btn">← Home</a>
+  <div class="nav-title">
+    {% if key == 'love' %}🌹
+    {% elif key == 'reality' %}🌍
+    {% elif key == 'happy' %}😊
+    {% elif key == 'dosti' %}🤝
+    {% else %}💔{% endif %}
+    {{ key|title }} Section
+  </div>
+  <div class="nav-poem-count">{{ poems|length }} poem(s) ✦</div>
+</nav>
+
+<div class="workspace">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-top">
+      <div class="sidebar-heading">✦ Saved Poems</div>
+    </div>
+    <div class="poem-list">
+      {% if poems %}
+        {% for poem in poems %}
+<div class="poem-item">
+  <div class="pi-title">
+    {% if poem.is_fav %}⭐ {% endif %}{{ poem.title }}
+  </div>
+  <div class="pi-date">{{ poem.created }}</div>
+</div>
+{% endfor %}
+      {% else %}
+        <div class="empty-state">ابھی کوئی نظم نہیں 🌸<br/><span style="font-size:0.65rem;">Write your first poem!</span></div>
+      {% endif %}
+    </div>
+    <div class="sidebar-stats">
+      <div class="stat"><div class="stat-n">{{ poems|length }}</div><div class="stat-l">Poems</div></div>
+    </div>
+  </aside>
+
+  <!-- EDITOR -->
+  <main class="editor">
+    <div class="editor-topbar">
+      <span class="topbar-label">✦ Write a New Poem</span>
+      <div class="et-spacer"></div>
+      <div class="public-toggle">
+  <label class="toggle-label">
+    <input type="checkbox" name="is_public" id="is_public"/>
+    <span class="toggle-switch"></span>
+    <span class="toggle-text">Make this poem public 🌍</span>
+  </label>
+</div>
+      <button class="et-btn save" onclick="saveWithToast()">Save Poem</button>
+    </div>
+
+    <div class="editor-body">
+      <form id="poem-form" method="POST" action="/save" enctype="multipart/form-data">
+        <input type="hidden" name="mood" value="{{ key }}"/>
+        <input class="field-title" type="text" name="title" placeholder="Poem title..." required/>
+        <div class="ornament">❧ &nbsp; ❦ &nbsp; ❧</div>
+
+        <!-- POLAROID UPLOAD -->
+        <div class="upload-box">
+          <label for="image-upload" class="upload-label">
+            <div class="upload-icon">📸</div>
+            <div class="upload-text">Add a Polaroid</div>
+            <div class="upload-sub">Click to upload your picture</div>
+          </label>
+          <input type="file" id="image-upload" name="image"
+                 accept="image/*" style="display:none"
+                 onchange="previewImage(this)"/>
+          <div id="preview-box" style="display:none; text-align:center;">
+            <div class="polaroid-preview">
+              <img id="preview-img" src="" alt="preview"/>
+              <div class="polaroid-caption">my moment ✨</div>
+            </div>
+          </div>
+        </div>
+
+        <textarea class="field-content" name="content" id="poem-content"
+  placeholder="یہاں لکھیں — Urdu ya English, jo dil chahye..."
+  rows="8" required oninput="updateCounter()"></textarea>
+
+<div class="word-counter" id="word-counter">
+  <span id="wc">0</span> words &nbsp;·&nbsp; <span id="lc">0</span> lines
+</div>
+      </form>
+      {% if poems %}
+      <div class="saved-section" style="padding:0; margin-top:16px;">
+        <div class="saved-divider">Your Poems</div>
+        {% for poem in poems %}
+<div class="saved-card">
+  <div class="saved-header">
+    <div class="saved-title">{{ poem.title }}</div>
+    <div class="saved-date">{{ poem.created }}</div>
+  </div>
+  {% if poem.image %}
+  <div class="poem-polaroid">
+    <img src="/static/uploads/{{ poem.image }}" alt="poem image"/>
+    <div class="polaroid-label">{{ poem.title[:10] }}...</div>
+  </div>
+  {% endif %}
+  <div class="saved-text">{{ poem.content }}</div>
+  <div class="saved-footer">
+    <a href="/favorite/{{ poem.id }}/{{ key }}" class="action-link fav">
+      {% if poem.is_fav %}⭐ Saved{% else %}☆ Favorite{% endif %}
+    </a>
+    <a href="/card/{{ poem.id }}" class="action-link card">🎨 Card</a>
+    <a href="/edit/{{ poem.id }}" class="action-link edit">Edit</a>
+    <a href="/delete/{{ poem.id }}/{{ key }}" class="action-link delete"
+       onclick="return confirm('Delete this poem?')">Delete</a>
+  </div>
+</div>
+{% endfor %}
+      </div>
+      {% endif %}
+    </div>
+  </main>
+
+  <!-- AI PANEL -->
+  <aside class="ai-panel">
+    <div class="ai-panel-top"><span class="ai-badge">AI</span> Assistant</div>
+    <div class="ai-panel-body">
+      <div class="ai-box">
+        <div class="ai-box-label">✦ Today's Line</div>
+        <div class="ai-today-line">{{ ai_line }}</div>
+      </div>
+      <div class="ai-box">
+        <div class="ai-box-label">✦ About this Section</div>
+        <div class="section-about">
+          {% if key == 'love' %}Your Love section 🌹 — where your heart speaks freely.
+          {% elif key == 'reality' %}Your Reality section 🌍 — raw, honest, true.
+          {% elif key == 'happy' %}Your Happy section 😊 — golden moments captured forever.
+          {% elif key == 'dosti' %}Your Dosti section 🤝 — friendships that feel like home.
+          {% else %}Your Sad section 💔 — where pain becomes poetry.{% endif %}
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- TOAST MESSAGE -->
+<div id="toast" style="
+  position:fixed; bottom:30px; left:50%; transform:translateX(-50%) translateY(100px);
+  background:white; border:1px solid var(--border);
+  border-radius:25px; padding:12px 28px;
+  box-shadow:0 8px 30px rgba(192,86,106,0.15);
+  font-family:'Cormorant Garamond',serif; font-style:italic;
+  font-size:0.88rem; color:var(--mood-accent);
+  letter-spacing:0.1em; z-index:999;
+  transition:transform 0.4s cubic-bezier(.34,1.56,.64,1), opacity 0.4s;
+  opacity:0; pointer-events:none;
+  display:flex; align-items:center; gap:8px;
+">
+  🌸 Poem saved successfully!
+</div>
+
+<script>
+  const themes = {
+    love:    { accent:'#c0566a', accent2:'#e0889a', bg:'#fff5f7', surface:'#fce8ec', border:'rgba(192,86,106,0.2)'  },
+    reality: { accent:'#4a64a8', accent2:'#6a84c8', bg:'#f5f7ff', surface:'#eaedfa', border:'rgba(74,100,168,0.2)'  },
+    happy:   { accent:'#9a6c10', accent2:'#c09030', bg:'#fffdf0', surface:'#fdf5d8', border:'rgba(200,144,32,0.2)'  },
+    sad:     { accent:'#6050a8', accent2:'#8878c8', bg:'#f8f5ff', surface:'#ede8fa', border:'rgba(96,80,168,0.2)'   },
+    dosti:   { accent:'#2e8b57', accent2:'#3aaa6e', bg:'#f0fff4', surface:'#e0f5e9', border:'rgba(46,139,87,0.2)'   },
+  };
+  const key = '{{ key }}';
+  const t = themes[key] || themes.love;
+  const r = document.documentElement.style;
+  r.setProperty('--mood-accent',  t.accent);
+  r.setProperty('--mood-accent2', t.accent2);
+  r.setProperty('--mood-bg',      t.bg);
+  r.setProperty('--mood-surface', t.surface);
+  r.setProperty('--mood-border',  t.border);
+
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('preview-img').src = e.target.result;
+        document.getElementById('preview-box').style.display = 'block';
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+  function updateCounter() {
+  const text = document.getElementById('poem-content').value;
+  const words = text.trim() === '' ? 0 : text.trim().split(/\s+/).length;
+  const lines = text.split('\n').filter(l => l.trim()).length;
+  document.getElementById('wc').textContent = words;
+  document.getElementById('lc').textContent = lines;
+}
+function saveWithToast() {
+  const title = document.querySelector('input[name="title"]').value.trim();
+  const content = document.getElementById('poem-content').value.trim();
+  
+  if (!title || !content) {
+    // Show error toast
+    showToast('✏️ Title aur poem dono likhein!', '#e86070');
+    return;
+  }
+  
+  showToast('🌸 Poem saved!', 'var(--mood-accent)');
+  
+  setTimeout(() => {
+    document.getElementById('poem-form').submit();
+  }, 1000);
+}
+
+function showToast(message, color) {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = message;
+  toast.style.color = color;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(100px)';
+  }, 2500);
+}
+</script>
+</body>
+</html>

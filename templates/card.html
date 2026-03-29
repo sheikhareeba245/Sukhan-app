@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Poem Card — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+      --mood-accent:#c0566a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body { background:var(--bg); color:var(--text); font-family:'Playfair Display',serif; min-height:100vh; }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--mood-accent),var(--gold2),var(--mood-accent),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .navbar {
+      position:sticky; top:0; z-index:100;
+      background:rgba(253,248,245,0.93); backdrop-filter:blur(12px);
+      border-bottom:1px solid var(--border);
+      display:flex; align-items:center; padding:0 28px; height:52px; gap:14px;
+      box-shadow:0 2px 20px rgba(192,86,106,0.07);
+    }
+    .back-btn {
+      text-decoration:none; padding:5px 14px;
+      border:1px solid var(--border); border-radius:20px;
+      color:var(--text2); font-size:0.72rem; letter-spacing:0.1em;
+      transition:all 0.2s; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+    .back-btn:hover { color:var(--mood-accent); border-color:var(--mood-accent); }
+    .nav-title { font-style:italic; font-size:1.1rem; color:var(--mood-accent); }
+
+    .main {
+      max-width:900px; margin:0 auto; padding:40px 24px;
+      display:grid; grid-template-columns:1fr 320px; gap:32px;
+    }
+
+    /* LEFT — Card preview */
+    .card-preview-section { display:flex; flex-direction:column; gap:16px; }
+    .preview-label {
+      font-size:0.6rem; letter-spacing:0.2em; color:var(--muted);
+      text-transform:uppercase; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+
+    /* THE POEM CARD */
+    .poem-card {
+      width:100%; aspect-ratio:4/5;
+      border-radius:16px; position:relative; overflow:hidden;
+      box-shadow:0 12px 50px rgba(0,0,0,0.15);
+      display:flex; flex-direction:column; justify-content:space-between;
+      padding:36px 32px;
+      transition:transform 0.3s;
+      cursor:pointer;
+    }
+    .poem-card:hover { transform:scale(1.01); }
+
+    /* Background themes for card */
+    .theme-love {
+      background: linear-gradient(145deg, #fce8ec, #f5c0cc, #fce8ec);
+    }
+    .theme-reality {
+      background: linear-gradient(145deg, #e8eef8, #c0ccee, #e8eef8);
+    }
+    .theme-happy {
+      background: linear-gradient(145deg, #fdf5d8, #f0d890, #fdf5d8);
+    }
+    .theme-sad {
+      background: linear-gradient(145deg, #ede8fa, #c8c0ee, #ede8fa);
+    }
+    .theme-dosti {
+      background: linear-gradient(145deg, #e0f5e9, #a8dfc0, #e0f5e9);
+    }
+
+    /* Decorative elements on card */
+    .card-deco-top {
+      position:absolute; top:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, transparent, var(--mood-accent), transparent);
+    }
+    .card-deco-bottom {
+      position:absolute; bottom:0; left:0; right:0; height:3px;
+      background:linear-gradient(90deg, transparent, var(--mood-accent), transparent);
+    }
+    .card-deco-corner {
+      position:absolute; font-size:1.8rem; opacity:0.12;
+    }
+    .corner-tl { top:12px; left:16px; transform:rotate(-20deg); }
+    .corner-br { bottom:12px; right:16px; transform:rotate(20deg); }
+
+    .card-top { display:flex; flex-direction:column; gap:8px; position:relative; z-index:1; }
+    .card-brand {
+      font-size:0.55rem; letter-spacing:0.25em; color:var(--mood-accent);
+      text-transform:uppercase; font-family:'Cormorant Garamond',serif;
+      opacity:0.7;
+    }
+    .card-poem-title {
+      font-style:italic; font-size:1.4rem; color:var(--mood-accent);
+      letter-spacing:0.04em; line-height:1.3;
+    }
+    .card-divider {
+      width:40px; height:1px;
+      background:var(--mood-accent); opacity:0.4; margin:4px 0;
+    }
+
+    /* Polaroid on card */
+    .card-polaroid {
+      align-self:center; position:relative; z-index:1;
+      background:white; padding:8px 8px 22px;
+      box-shadow:0 6px 20px rgba(0,0,0,0.12);
+      border-radius:2px; transform:rotate(1.5deg);
+      max-width:140px; margin:8px auto;
+    }
+    .card-polaroid img { width:124px; height:124px; object-fit:cover; display:block; }
+    .card-polaroid-label {
+      text-align:center; margin-top:5px;
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.62rem; color:var(--text2);
+    }
+
+    .card-poem-text {
+      font-family:'Noto Nastaliq Urdu',serif; font-size:0.88rem;
+      line-height:2.3; color:var(--text); text-align:right; direction:rtl;
+      position:relative; z-index:1;
+      display:-webkit-box; -webkit-line-clamp:6;
+      -webkit-box-orient:vertical; overflow:hidden;
+    }
+
+    .card-bottom {
+      display:flex; justify-content:space-between; align-items:flex-end;
+      position:relative; z-index:1;
+    }
+    .card-footer-text {
+      font-size:0.55rem; color:var(--mood-accent);
+      letter-spacing:0.15em; opacity:0.6;
+      font-family:'Cormorant Garamond',serif;
+    }
+    .card-emoji-big { font-size:1.4rem; opacity:0.5; }
+
+    /* RIGHT — Controls */
+    .controls { display:flex; flex-direction:column; gap:20px; }
+    .control-section { display:flex; flex-direction:column; gap:10px; }
+    .control-label {
+      font-size:0.6rem; letter-spacing:0.2em; color:var(--muted);
+      text-transform:uppercase; font-family:'Cormorant Garamond',serif; font-style:italic;
+    }
+
+    /* Theme picker */
+    .theme-picker { display:flex; gap:8px; flex-wrap:wrap; }
+    .theme-dot {
+      width:28px; height:28px; border-radius:50%; cursor:pointer;
+      border:2px solid transparent; transition:all 0.2s;
+      box-shadow:0 2px 8px rgba(0,0,0,0.1);
+    }
+    .theme-dot:hover { transform:scale(1.15); }
+    .theme-dot.active { border-color:var(--text); transform:scale(1.1); }
+    .dot-love    { background: #e8607a; }
+    .dot-reality { background: #4a64a8; }
+    .dot-happy   { background: #e8b840; }
+    .dot-sad     { background: #6050a8; }
+    .dot-dosti   { background: #2e8b57; }
+    .dot-night { background: #0d1b2a; }
+    .dot-golden  { background: #c9954a; }
+
+    /* Font picker */
+    .font-picker { display:flex; gap:8px; }
+    .font-btn {
+      padding:6px 14px; background:white;
+      border:1px solid var(--border); border-radius:16px;
+      cursor:pointer; font-size:0.72rem; color:var(--text2);
+      transition:all 0.2s;
+    }
+    .font-btn:hover { border-color:var(--mood-accent); color:var(--mood-accent); }
+    .font-btn.active { background:var(--mood-accent); color:white; border-color:var(--mood-accent); }
+
+    /* Download btn */
+    .download-btn {
+      width:100%; padding:13px;
+      background:var(--mood-accent); color:white;
+      border:none; border-radius:25px; cursor:pointer;
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:0.88rem; letter-spacing:0.12em;
+      box-shadow:0 6px 24px rgba(192,86,106,0.3);
+      transition:all 0.2s; display:flex; align-items:center;
+      justify-content:center; gap:8px;
+    }
+    .download-btn:hover { box-shadow:0 8px 32px rgba(192,86,106,0.45); transform:translateY(-2px); }
+
+    .share-btns { display:flex; gap:8px; }
+    .share-btn {
+      flex:1; padding:9px;
+      background:white; border:1px solid var(--border);
+      border-radius:20px; cursor:pointer;
+      font-size:0.72rem; color:var(--text2);
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      letter-spacing:0.08em; transition:all 0.2s; text-align:center;
+    }
+    .share-btn:hover { border-color:var(--mood-accent); color:var(--mood-accent); }
+
+    /* Night theme overrides */
+    .theme-night {
+      background: linear-gradient(145deg, #1a0f2e, #2a1a4a, #1a0f2e) !important;
+    }
+    .theme-night .card-poem-title,
+    .theme-night .card-brand,
+    .theme-night .card-footer-text { color:#e8c17a !important; }
+    .theme-night .card-poem-text { color:#ede2cc !important; }
+    .theme-night .card-deco-top,
+    .theme-night .card-deco-bottom { background:linear-gradient(90deg,transparent,#c9954a,transparent) !important; }
+
+    .theme-golden {
+      background: linear-gradient(145deg, #2a1a06, #4a3010, #2a1a06) !important;
+    }
+    .theme-golden .card-poem-title,
+    .theme-golden .card-brand,
+    .theme-golden .card-footer-text { color:#f2d897 !important; }
+    .theme-golden .card-poem-text { color:#ede2cc !important; }
+    @media (max-width: 768px) {
+  .main {
+    grid-template-columns: 1fr !important;
+    padding: 20px 16px;
+    gap: 20px;
+  }
+  .poem-card {
+    aspect-ratio: 3/4;
+  }
+  .controls {
+    padding-bottom: 40px;
+  }
+}
+  </style>
+</head>
+<body>
+<div class="shimmer-line"></div>
+<nav class="navbar">
+  <a href="/section/{{ poem.mood }}" class="back-btn"></a>← Back</a>
+  <div class="nav-title">🎨 Poem Card</div>
+</nav>
+<div class="main">
+
+<!-- CARD PREVIEW -->
+  <div class="card-preview-section">
+    <div class="preview-label">✦ Preview — Click to customize</div>
+    <div class="poem-card theme-{{ poem.mood }}" id="poem-card">
+      <div class="card-deco-top"></div>
+      <div class="card-deco-bottom"></div>
+      <span class="card-deco-corner corner-tl">
+        {% if poem.mood == 'love' %}🌹
+        {% elif poem.mood == 'reality' %}🌍
+        {% elif poem.mood == 'happy' %}😊
+        {% elif poem.mood == 'dosti' %}🤝
+        {% else %}💔{% endif %}
+      </span>
+      <span class="card-deco-corner corner-br">✦</span>
+      <div class="card-top">
+        <div class="card-brand">✦ SUKHAN · سخن</div>
+        <div class="card-poem-title" id="card-title">{{ poem.title }}</div>
+        <div class="card-divider"></div>
+      </div>
+      {% if poem.image %}
+      <div class="card-polaroid">
+        <img src="/static/uploads/{{ poem.image }}" alt="poem image"/>
+        <div class="card-polaroid-label">{{ poem.title[:12] }}...</div>
+      </div>
+      {% endif %}
+      <div class="card-poem-text" id="card-text">{{ poem.content }}</div>
+      <div class="card-bottom">
+        <div class="card-footer-text">Areeba · {{ poem.created }}</div>
+        <div class="card-emoji-big">
+          {% if poem.mood == 'love' %}🌹
+          {% elif poem.mood == 'reality' %}🌍
+          {% elif poem.mood == 'happy' %}😊
+          {% elif poem.mood == 'dosti' %}🤝
+          {% else %}💔{% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CONTROLS -->
+  <div class="controls">
+
+    <div class="control-section">
+      <div class="control-label">✦ Card Theme</div>
+      <div class="theme-picker">
+        <div class="theme-dot dot-love active"    onclick="setTheme('love')"></div>
+        <div class="theme-dot dot-reality"        onclick="setTheme('reality')"></div>
+        <div class="theme-dot dot-happy"          onclick="setTheme('happy')"></div>
+        <div class="theme-dot dot-sad"            onclick="setTheme('sad')"></div>
+        <div class="theme-dot dot-dosti"          onclick="setTheme('dosti')"></div>
+        <div class="theme-dot dot-night"          onclick="setTheme('night')"></div>
+        <div class="theme-dot dot-golden"         onclick="setTheme('golden')"></div>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <div class="control-label">✦ Text Size</div>
+      <div class="font-picker">
+        <button class="font-btn" onclick="setSize('small')">Small</button>
+        <button class="font-btn active" onclick="setSize('medium')">Medium</button>
+        <button class="font-btn" onclick="setSize('large')">Large</button>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <div class="control-label">✦ Download & Share</div>
+      <button class="download-btn" onclick="downloadCard()">
+        ⬇ Download Card
+      </button>
+      <div class="share-btns" style="margin-top:8px;">
+        <button class="share-btn" onclick="copyLink()">🔗 Copy Link</button>
+        <button class="share-btn">📱 WhatsApp</button>
+      </div>
+    </div>
+
+    <div class="control-section">
+      <div class="control-label">✦ Poem Info</div>
+      <div style="background:white;border:1px solid var(--border);border-radius:12px;padding:14px;">
+        <div style="font-style:italic;font-size:0.88rem;color:var(--mood-accent);margin-bottom:6px;">{{ poem[2] }}</div>
+        <div style="font-size:0.65rem;color:var(--muted);letter-spacing:0.08em;font-family:'Cormorant Garamond',serif;">
+          {% if poem.mood == 'love' %}🌹 Love
+          {% elif poem.mood == 'reality' %}🌍 Reality
+          {% elif poem.mood == 'happy' %}😊 Happy
+          {% elif poem.mood == 'dosti' %}🤝 Dosti
+          {% else %}💔 Sad{% endif %}
+          &nbsp;·&nbsp; {{ poem[4] }}
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- html2canvas for download -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  const moodAccents = {
+    love:'#c0566a', reality:'#4a64a8', happy:'#9a6c10',
+    sad:'#6050a8', dosti:'#2e8b57', night:'#c9954a', golden:'#f2d897'
+  };
+
+  const currentMood = '{{ poem.mood }}';
+
+ // Set initial theme
+window.onload = function() {
+  const card = document.getElementById('poem-card');
+  card.className = 'poem-card theme-' + currentMood;
+  const accent = moodAccents[currentMood] || moodAccents.love;
+  document.documentElement.style.setProperty('--mood-accent', accent);
+}
+
+function setTheme(theme) {
+  const card = document.getElementById('poem-card');
+  card.className = 'poem-card theme-' + theme;
+  const accent = moodAccents[theme] || moodAccents.love;
+  document.documentElement.style.setProperty('--mood-accent', accent);
+  document.querySelectorAll('.theme-dot').forEach(d => d.classList.remove('active'));
+  event.target.classList.add('active');
+}
+
+  function setSize(size) {
+    const text = document.getElementById('card-text');
+    const sizes = { small:'0.75rem', medium:'0.88rem', large:'1rem' };
+    text.style.fontSize = sizes[size];
+    document.querySelectorAll('.font-btn').forEach(b => b.classList.remove('active'));
+    event.target.classList.add('active');
+  }
+
+  function downloadCard() {
+    const card = document.getElementById('poem-card');
+    html2canvas(card, {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: null
+    }).then(canvas => {
+      const link = document.createElement('a');
+      link.download = '{{ poem.title }}-sukhan.png';
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    });
+  }
+
+  function copyLink() {
+    navigator.clipboard.writeText(window.location.href);
+    alert('Link copied! 🌸');
+  }
+</script>
+</body>
+</html>

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <title>Register — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'Playfair Display',serif; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+    }
+
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--rose),var(--gold2),var(--rose),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .petals { position:fixed; inset:0; z-index:0; pointer-events:none; overflow:hidden; }
+    .petal { position:absolute; top:-40px; opacity:0; animation:petalFall linear infinite; }
+    .petal:nth-child(1){ left:10%; animation-duration:14s; animation-delay:0s;  font-size:0.9rem; }
+    .petal:nth-child(2){ left:50%; animation-duration:16s; animation-delay:3s;  font-size:1rem;   }
+    .petal:nth-child(3){ left:80%; animation-duration:12s; animation-delay:6s;  font-size:0.8rem; }
+    @keyframes petalFall {
+      0%  { transform:translateY(-40px) rotate(0deg);   opacity:0; }
+      10% { opacity:0.5; } 90% { opacity:0.2; }
+      100%{ transform:translateY(110vh) rotate(360deg); opacity:0; }
+    }
+
+    .card {
+      position:relative; z-index:1;
+      background:white; border:1px solid var(--border);
+      border-radius:20px; padding:48px 44px;
+      width:100%; max-width:420px;
+      box-shadow:0 12px 50px rgba(192,86,106,0.1);
+      animation:cardIn 0.7s ease both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+    .card-top { text-align:center; margin-bottom:32px; }
+    .brand { font-style:italic; font-size:1.8rem; color:var(--rose); letter-spacing:0.1em; margin-bottom:6px; }
+    .brand-ur { font-family:'Noto Nastaliq Urdu',serif; font-size:0.88rem; color:var(--text2); }
+    .card-title { font-style:italic; font-size:1rem; color:var(--text2); letter-spacing:0.08em; margin-top:16px; font-family:'Cormorant Garamond',serif; }
+    .divider { width:60px; height:1px; margin:12px auto; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+
+    .field-group { display:flex; flex-direction:column; gap:14px; margin-bottom:24px; }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label { font-size:0.62rem; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; font-family:'Cormorant Garamond',serif; }
+    .field input { padding:11px 16px; background:var(--bg); border:1px solid var(--border); border-radius:10px; color:var(--text); font-family:'Cormorant Garamond',serif; font-size:0.92rem; outline:none; transition:all 0.2s; }
+    .field input:focus { border-color:var(--rose); box-shadow:0 0 0 3px rgba(192,86,106,0.08); }
+    .field input::placeholder { color:var(--muted); }
+
+    .error-msg { background:#fff5f5; border:1px solid rgba(200,80,80,0.2); border-radius:10px; padding:10px 14px; font-size:0.75rem; color:#c04050; font-family:'Cormorant Garamond',serif; font-style:italic; letter-spacing:0.06em; margin-bottom:16px; text-align:center; }
+
+    .submit-btn { width:100%; padding:13px; background:var(--rose); color:white; border:none; border-radius:25px; cursor:pointer; font-family:'Playfair Display',serif; font-style:italic; font-size:0.9rem; letter-spacing:0.12em; box-shadow:0 6px 24px rgba(192,86,106,0.3); transition:all 0.2s; }
+    .submit-btn:hover { box-shadow:0 8px 32px rgba(192,86,106,0.45); transform:translateY(-2px); }
+
+    .bottom-link { text-align:center; margin-top:20px; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.8rem; color:var(--muted); letter-spacing:0.06em; }
+    .bottom-link a { color:var(--rose); text-decoration:none; border-bottom:1px solid rgba(192,86,106,0.3); transition:all 0.2s; }
+    .bottom-link a:hover { border-bottom-color:var(--rose); }
+  </style>
+</head>
+<body>
+
+<div class="shimmer-line"></div>
+<div class="petals">
+  <span class="petal">🌸</span>
+  <span class="petal">✿</span>
+  <span class="petal">🌹</span>
+</div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="brand">✦ Sukhan</div>
+    <div class="brand-ur">سخن — apni shayari ki duniya banao</div>
+    <div class="divider"></div>
+    <div class="card-title">Naya account banao 🌸</div>
+  </div>
+
+  {% if error %}
+  <div class="error-msg">{{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="/register">
+    <div class="field-group">
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" placeholder="Areeba" required/>
+      </div>
+      <div class="field">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="your@email.com" required/>
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="••••••••" required/>
+      </div>
+    </div>
+    <button type="submit" class="submit-btn">Register →</button>
+  </form>
+
+  <div class="bottom-link">
+    Already registered? <a href="/login">Login karo</a>
+  </div>
+</div>
+
+</body>
+</html>
