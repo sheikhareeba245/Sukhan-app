@@ -265,17 +265,19 @@ def register():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        email    = request.form['email']
-        password = request.form['password']
+        login_input = request.form['email']
+        password    = request.form['password']
         conn = sqlite3.connect(DB)
         c = conn.cursor()
-        c.execute('SELECT id, username, email, password FROM users WHERE email = ?', (email,))
+        # Email ya username dono se login ho sake!
+        c.execute('SELECT id, username, email, password FROM users WHERE email = ? OR username = ?', 
+                  (login_input, login_input))
         user = c.fetchone()
         conn.close()
         if user and check_password_hash(user[3], password):
             login_user(User(user[0], user[1], user[2]))
             return redirect(url_for('home'))
-        return render_template('login.html', error='Email ya password galat hai!')
+        return render_template('login.html', error='Email/Username ya password galat hai!')
     return render_template('login.html', error=None)
 
 @app.route('/logout')
