@@ -224,6 +224,10 @@ input[type="checkbox"] { display: none; }
   .field-title { font-size: 1.1rem; }
   .saved-card { padding: 14px 16px; }
 }
+.action-link.like:hover {
+  color: #e86070;
+  border-color: rgba(200,80,80,0.4);
+}
 
  </style>
 </head>
@@ -339,6 +343,10 @@ input[type="checkbox"] { display: none; }
   {% endif %}
   <div class="saved-text">{{ poem.content }}</div>
   <div class="saved-footer">
+    <a href="/like/{{ poem.id }}/{{ key }}" class="action-link like">
+  {% if poem.is_liked %}❤️{% else %}🤍{% endif %}
+  {{ poem.likes }}
+</a>
     <a href="/favorite/{{ poem.id }}/{{ key }}" class="action-link fav">
       {% if poem.is_fav %}⭐ Saved{% else %}☆ Favorite{% endif %}
     </a>

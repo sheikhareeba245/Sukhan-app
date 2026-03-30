@@ -184,20 +184,25 @@
       <div class="poem-polaroid">
         <img src="/static/uploads/{{ poem[5] }}" alt="poem image"/>
       </div>
-      {% endif %}
+     {% endif %}
 
-      <div class="poem-text">{{ poem[3] }}</div>
+<div class="poem-text">{{ poem.content }}</div>
 
-      <div class="poem-footer">
-        <div class="poet-name">
-          👑 {{ poem[6] }}
-        </div>
-        <div class="poem-date">{{ poem[4] }}</div>
-      </div>
-    </div>
-    {% endfor %}
+<div class="poem-footer">
+  <div class="poet-name">
+    👑 {{ poem.username }}
   </div>
-
+  <div style="display:flex; align-items:center; gap:8px;">
+    <a href="/like/{{ poem.id }}/{{ poem.mood }}" class="fav-btn"
+       style="{% if poem.is_liked %}color:#e86070;border-color:rgba(200,80,80,0.4);{% endif %}">
+      {% if poem.is_liked %}❤️{% else %}🤍{% endif %}
+      {{ poem.likes }}
+    </a>
+    <div class="poem-date">{{ poem.created }}</div>
+  </div>
+</div>
+{% endfor %}
+</div>
   {% else %}
   <div class="empty-state">
     <div class="empty-emoji">🌸</div>

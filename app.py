@@ -126,6 +126,14 @@ def init_db():
             created  TEXT DEFAULT (date('now'))
         )
     ''')
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS likes (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        poem_id  INTEGER NOT NULL,
+        user_id  INTEGER NOT NULL,
+        UNIQUE(poem_id, user_id)
+    )
+''')
     conn.commit()
     conn.close()
 
@@ -186,6 +194,37 @@ def is_favorite(poem_id):
     result = c.fetchone()
     conn.close()
     return result is not None
+
+def get_likes(poem_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('SELECT COUNT(*) FROM likes WHERE poem_id = ?', (poem_id,))
+    count = c.fetchone()[0]
+    conn.close()
+    return count
+
+def is_liked(poem_id, user_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('SELECT id FROM likes WHERE poem_id = ? AND user_id = ?', (poem_id, user_id))
+    result = c.fetchone()
+    conn.close()
+    return result is not None
+
+@app.route('/like/<int:poem_id>/<mood>')
+@login_required
+def like(poem_id, mood):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    if is_liked(poem_id, current_user.id):
+        c.execute('DELETE FROM likes WHERE poem_id = ? AND user_id = ?',
+                  (poem_id, current_user.id))
+    else:
+        c.execute('INSERT INTO likes (poem_id, user_id) VALUES (?, ?)',
+                  (poem_id, current_user.id))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('section', key=mood))
 
 @app.route('/favorite/<int:poem_id>/<mood>')
 def favorite(poem_id, mood):
@@ -365,10 +404,12 @@ def section(key):
     poems = []
     for p in raw_poems:
         poems.append({
-            'id': p[0], 'title': p[1], 'content': p[2],
-            'created': p[3], 'image': p[4],
-            'is_fav': is_favorite(p[0])
-        })
+    'id': p[0], 'title': p[1], 'content': p[2],
+    'created': p[3], 'image': p[4],
+    'is_fav': is_favorite(p[0]),
+    'likes': get_likes(p[0]),
+    'is_liked': is_liked(p[0], current_user.id)
+})
     ai_line = random.choice(ai_lines.get(key, ['']))
     return render_template('section.html', key=key, poems=poems, ai_line=ai_line)
 
@@ -399,6 +440,7 @@ def save():
         update_streak()
     return redirect(url_for('section', key=mood))
 
+
 @app.route('/explore')
 @login_required
 def explore():
@@ -409,8 +451,17 @@ def explore():
                  JOIN users u ON p.user_id = u.id
                  WHERE p.is_public = 1
                  ORDER BY p.id DESC''')
-    poems = c.fetchall()
+    raw_poems = c.fetchall()
     conn.close()
+    poems = []
+    for p in raw_poems:
+        poems.append({
+            'id': p[0], 'mood': p[1], 'title': p[2],
+            'content': p[3], 'created': p[4], 'image': p[5],
+            'username': p[6],
+            'likes': get_likes(p[0]),
+            'is_liked': is_liked(p[0], current_user.id)
+        })
     return render_template('explore.html', poems=poems)
 
 @app.route('/delete/<int:poem_id>/<mood>')
