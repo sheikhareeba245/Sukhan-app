@@ -100,13 +100,14 @@ def init_db():
         pass
 
     c.execute('''
-        CREATE TABLE IF NOT EXISTS streak (
-            id      INTEGER PRIMARY KEY,
-            last_written TEXT,
-            current_streak INTEGER DEFAULT 0,
-            longest_streak INTEGER DEFAULT 0
-        )
-    ''')
+    CREATE TABLE IF NOT EXISTS streak (
+        id             INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id        INTEGER UNIQUE NOT NULL,
+        last_written   TEXT,
+        current_streak INTEGER DEFAULT 0,
+        longest_streak INTEGER DEFAULT 0
+    )
+''')
     c.execute('INSERT OR IGNORE INTO streak (id, last_written, current_streak, longest_streak) VALUES (1, NULL, 0, 0)')
 
     c.execute('''
@@ -146,44 +147,44 @@ def get_poem_count(mood):
     return count
 
 def get_streak():
+    from flask_login import current_user
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute('SELECT last_written, current_streak, longest_streak FROM streak WHERE id = 1')
+    c.execute('SELECT last_written, current_streak, longest_streak FROM streak WHERE user_id = ?', 
+              (current_user.id,))
     row = c.fetchone()
     conn.close()
-    return {
-        'last_written': row[0],
-        'current': row[1],
-        'longest': row[2]
-    }
+    if row:
+        return {'last_written': row[0], 'current': row[1], 'longest': row[2]}
+    return {'last_written': None, 'current': 0, 'longest': 0}
 
 def update_streak():
+    from flask_login import current_user
     from datetime import date, timedelta
     today = str(date.today())
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute('SELECT last_written, current_streak, longest_streak FROM streak WHERE id = 1')
+    c.execute('SELECT last_written, current_streak, longest_streak FROM streak WHERE user_id = ?',
+              (current_user.id,))
     row = c.fetchone()
-    last_written = row[0]
-    current = row[1]
-    longest = row[2]
-
-    if last_written == today:
-        # Already written today!
-        pass
-    elif last_written == str(date.today() - timedelta(days=1)):
-        # Yesterday — streak continues!
-        current += 1
-        if current > longest:
-            longest = current
-        c.execute('UPDATE streak SET last_written=?, current_streak=?, longest_streak=? WHERE id=1',
-                  (today, current, longest))
+    
+    if not row:
+        c.execute('INSERT INTO streak (user_id, last_written, current_streak, longest_streak) VALUES (?,?,?,?)',
+                  (current_user.id, today, 1, 1))
     else:
-        # Streak broken — start fresh
-        current = 1
-        c.execute('UPDATE streak SET last_written=?, current_streak=?, longest_streak=? WHERE id=1',
-                  (today, current, longest))
-
+        last_written, current, longest = row
+        if last_written == today:
+            pass
+        elif last_written == str(date.today() - timedelta(days=1)):
+            current += 1
+            if current > longest:
+                longest = current
+            c.execute('UPDATE streak SET last_written=?, current_streak=?, longest_streak=? WHERE user_id=?',
+                      (today, current, longest, current_user.id))
+        else:
+            c.execute('UPDATE streak SET last_written=?, current_streak=?, longest_streak=? WHERE user_id=?',
+                      (today, 1, max(1, longest), current_user.id))
+    
     conn.commit()
     conn.close()
 
