@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Edit Profile — Sukhan</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400;1,600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,400&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#fdf8f5; --bg2:#faf0ea; --text:#3d1f14; --text2:#9b6248;
+      --muted:#c4997a; --border:rgba(192,86,106,0.15);
+      --gold:#c9954a; --gold2:#e8c17a; --rose:#c0566a; --rose2:#e0889a;
+    }
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+    body {
+      background:var(--bg); color:var(--text);
+      font-family:'Playfair Display',serif; min-height:100vh;
+      display:flex; align-items:center; justify-content:center;
+    }
+    .shimmer-line {
+      position:fixed; top:0; left:0; right:0; height:2px; z-index:200;
+      background:linear-gradient(90deg,transparent,var(--rose),var(--gold2),var(--rose),transparent);
+      animation:shimmer 3s ease-in-out infinite;
+    }
+    @keyframes shimmer { 0%,100%{opacity:0.7} 50%{opacity:1} }
+
+    .card {
+      position:relative; z-index:1;
+      background:white; border:1px solid var(--border);
+      border-radius:20px; padding:48px 44px;
+      width:100%; max-width:480px;
+      box-shadow:0 12px 50px rgba(192,86,106,0.1);
+      animation:cardIn 0.7s ease both;
+    }
+    @keyframes cardIn { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
+
+    .card-top { text-align:center; margin-bottom:32px; }
+    .card-title { font-style:italic; font-size:1.6rem; color:var(--rose); margin-bottom:6px; }
+    .card-sub { font-family:'Cormorant Garamond',serif; font-style:italic; font-size:0.82rem; color:var(--muted); }
+    .divider { width:60px; height:1px; margin:12px auto; background:linear-gradient(90deg,transparent,var(--gold),transparent); }
+
+    .field-group { display:flex; flex-direction:column; gap:16px; margin-bottom:24px; }
+    .field { display:flex; flex-direction:column; gap:6px; }
+    .field label { font-size:0.62rem; color:var(--muted); letter-spacing:0.15em; text-transform:uppercase; font-family:'Cormorant Garamond',serif; }
+    .field input, .field textarea {
+      padding:11px 16px; background:var(--bg);
+      border:1px solid var(--border); border-radius:10px;
+      color:var(--text); font-family:'Cormorant Garamond',serif;
+      font-size:0.92rem; outline:none; transition:all 0.2s;
+    }
+    .field input:focus, .field textarea:focus { border-color:var(--rose); box-shadow:0 0 0 3px rgba(192,86,106,0.08); }
+    .field textarea { resize:vertical; min-height:80px; }
+
+    .btn-row { display:flex; gap:12px; }
+    .save-btn {
+      flex:1; padding:12px;
+      background:var(--rose); color:white; border:none;
+      border-radius:25px; cursor:pointer;
+      font-family:'Playfair Display',serif; font-style:italic;
+      font-size:0.88rem; letter-spacing:0.12em;
+      box-shadow:0 6px 24px rgba(192,86,106,0.3);
+      transition:all 0.2s;
+    }
+    .save-btn:hover { box-shadow:0 8px 32px rgba(192,86,106,0.45); transform:translateY(-2px); }
+    .cancel-btn {
+      padding:12px 24px; background:transparent;
+      border:1px solid var(--border); border-radius:25px;
+      color:var(--text2); text-decoration:none;
+      font-family:'Cormorant Garamond',serif; font-style:italic;
+      font-size:0.82rem; letter-spacing:0.1em; transition:all 0.2s;
+      display:flex; align-items:center;
+    }
+    .cancel-btn:hover { border-color:var(--muted); }
+  </style>
+</head>
+<body>
+<div class="shimmer-line"></div>
+
+<div class="card">
+  <div class="card-top">
+    <div class="card-title">✏️ Edit Profile</div>
+    <div class="divider"></div>
+    <div class="card-sub">Apni profile customize karo 🌸</div>
+  </div>
+
+  <form method="POST" action="/profile/edit">
+    <div class="field-group">
+      <div class="field">
+        <label>Display Name</label>
+        <input type="text" name="display_name"
+          value="{{ user_info[0] or '' }}"
+          placeholder="Areeba"/>
+      </div>
+      <div class="field">
+        <label>Bio</label>
+        <textarea name="bio" placeholder="Apne baare mein likho...">{{ user_info[1] or '' }}</textarea>
+      </div>
+      <div class="field">
+        <label>City</label>
+        <input type="text" name="city"
+          value="{{ user_info[2] or '' }}"
+          placeholder="Multan"/>
+      </div>
+    </div>
+    <div class="btn-row">
+      <a href="/profile" class="cancel-btn">Cancel</a>
+      <button type="submit" class="save-btn">Save Changes ✦</button>
+    </div>
+  </form>
+</div>
+</body>
+</html>

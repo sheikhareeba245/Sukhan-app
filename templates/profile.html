@@ -225,14 +225,23 @@
 
   <!-- PROFILE HERO -->
   <div class="profile-hero">
-    <div class="profile-avatar">👑</div>
-    <div class="profile-name">Areeba</div>
-    <div class="profile-title">شاعرہ · Poet</div>
-    <div class="profile-bio">
-      "Words are my world, poetry is my soul" 🌹<br/>
-      I express emotions with my words· Multan
-    </div>
+  <div class="profile-avatar">👑</div>
+  <div class="profile-name">
+    {{ user_info[0] if user_info and user_info[0] else current_user.username }}
   </div>
+  <div class="profile-title">شاعرہ · Poet</div>
+  <div class="profile-bio">
+    {{ user_info[1] if user_info and user_info[1] else '"Words are my world, poetry is my soul" 🌹' }}<br/>
+    {{ user_info[2] if user_info and user_info[2] else '' }}
+  </div>
+  <a href="/profile/edit" style="
+    display:inline-block; margin-top:16px; padding:7px 20px;
+    background:transparent; border:1px solid var(--border);
+    border-radius:20px; color:var(--text2); text-decoration:none;
+    font-family:'Cormorant Garamond',serif; font-style:italic;
+    font-size:0.75rem; letter-spacing:0.1em; transition:all 0.2s;
+  ">✏️ Edit Profile</a>
+</div>
 
   <!-- STATS -->
   <div>

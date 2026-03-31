@@ -254,36 +254,51 @@ def favorites():
     return render_template('favorites.html', poems=poems)
 
 @app.route('/profile')
+@login_required
 def profile():
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    
-    # Total poems
-    c.execute('SELECT COUNT(*) FROM poems')
+    c.execute('SELECT COUNT(*) FROM poems WHERE user_id = ?', (current_user.id,))
     total_poems = c.fetchone()[0]
-    
-    # Poems per mood
-    c.execute('SELECT mood, COUNT(*) FROM poems GROUP BY mood')
+    c.execute('SELECT mood, COUNT(*) FROM poems WHERE user_id = ? GROUP BY mood', (current_user.id,))
     mood_counts = dict(c.fetchall())
-    
-    # Total favorites
-    c.execute('SELECT COUNT(*) FROM favorites')
+    c.execute('SELECT COUNT(*) FROM favorites f JOIN poems p ON f.poem_id = p.id WHERE p.user_id = ?', (current_user.id,))
     total_favs = c.fetchone()[0]
-    
-    # Most written mood
-    c.execute('SELECT mood, COUNT(*) as cnt FROM poems GROUP BY mood ORDER BY cnt DESC LIMIT 1')
+    c.execute('SELECT mood, COUNT(*) as cnt FROM poems WHERE user_id = ? GROUP BY mood ORDER BY cnt DESC LIMIT 1', (current_user.id,))
     top_mood = c.fetchone()
-    
+    c.execute('SELECT display_name, bio, city FROM users WHERE id = ?', (current_user.id,))
+    user_info = c.fetchone()
     conn.close()
     streak = get_streak()
-    
     return render_template('profile.html',
         total_poems=total_poems,
         mood_counts=mood_counts,
         total_favs=total_favs,
         top_mood=top_mood,
-        streak=streak
+        streak=streak,
+        user_info=user_info
     )
+
+@app.route('/profile/edit', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if request.method == 'POST':
+        display_name = request.form.get('display_name', '').strip()
+        bio = request.form.get('bio', '').strip()
+        city = request.form.get('city', '').strip()
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute('UPDATE users SET display_name=?, bio=?, city=? WHERE id=?',
+                  (display_name, bio, city, current_user.id))
+        conn.commit()
+        conn.close()
+        return redirect(url_for('profile'))
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('SELECT display_name, bio, city FROM users WHERE id=?', (current_user.id,))
+    user_info = c.fetchone()
+    conn.close()
+    return render_template('edit_profile.html', user_info=user_info)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
