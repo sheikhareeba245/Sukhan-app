@@ -139,9 +139,11 @@ def init_db():
     conn.close()
 
 def get_poem_count(mood):
+    from flask_login import current_user
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute('SELECT COUNT(*) FROM poems WHERE mood = ?', (mood,))
+    c.execute('SELECT COUNT(*) FROM poems WHERE mood = ? AND user_id = ?', 
+              (mood, current_user.id))
     count = c.fetchone()[0]
     conn.close()
     return count

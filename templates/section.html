@@ -207,23 +207,26 @@ input[type="checkbox"] { display: none; }
 @media (max-width: 768px) {
   .workspace {
     grid-template-columns: 1fr !important;
-    grid-template-rows: auto 1fr auto;
+    height: auto !important;
+    position: relative !important;
   }
   .sidebar { display: none; }
   .sec-ai { display: none; }
-  .editor { width: 100%; }
-  .editor-body { padding: 20px 16px; }
-  .field-title { font-size: 1.3rem; }
-  .field-content { font-size: 1rem; }
+  .ai-panel { display: none; }
+  .editor {
+    width: 100%;
+    height: calc(100vh - 52px);
+  }
+  .editor-body { padding: 16px; }
+  .field-title { font-size: 1.2rem; }
+  .field-content { font-size: 1rem; min-height: 200px; }
   .saved-section { padding: 0 16px 20px; }
-  .editor-topbar { padding: 10px 16px; gap: 6px; }
+  .editor-topbar { padding: 10px 16px; gap: 6px; flex-wrap: wrap; }
   .et-btn { padding: 4px 10px; font-size: 0.65rem; }
-}
-
-@media (max-width: 480px) {
-  .field-title { font-size: 1.1rem; }
+  .topbar-label { font-size: 0.75rem; }
   .saved-card { padding: 14px 16px; }
 }
+
 .action-link.like:hover {
   color: #e86070;
   border-color: rgba(200,80,80,0.4);
