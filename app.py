@@ -135,6 +135,15 @@ def init_db():
         UNIQUE(poem_id, user_id)
     )
 ''')
+    c.execute('''
+    CREATE TABLE IF NOT EXISTS comments (
+        id       INTEGER PRIMARY KEY AUTOINCREMENT,
+        poem_id  INTEGER NOT NULL,
+        user_id  INTEGER NOT NULL,
+        content  TEXT NOT NULL,
+        created  TEXT DEFAULT (date('now'))
+    )
+''')
     conn.commit()
     conn.close()
 
@@ -228,6 +237,32 @@ def like(poem_id, mood):
     conn.commit()
     conn.close()
     return redirect(url_for('section', key=mood))
+
+@app.route('/comment/<int:poem_id>', methods=['POST'])
+@login_required
+def add_comment(poem_id):
+    content = request.form.get('comment', '').strip()
+    mood = request.form.get('mood', 'love')
+    if content:
+        conn = sqlite3.connect(DB)
+        c = conn.cursor()
+        c.execute('INSERT INTO comments (poem_id, user_id, content) VALUES (?, ?, ?)',
+                  (poem_id, current_user.id, content))
+        conn.commit()
+        conn.close()
+    return redirect(url_for('section', key=mood))
+
+def get_comments(poem_id):
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('''SELECT c.content, c.created, u.username 
+                 FROM comments c 
+                 JOIN users u ON c.user_id = u.id
+                 WHERE c.poem_id = ?
+                 ORDER BY c.id ASC''', (poem_id,))
+    comments = c.fetchall()
+    conn.close()
+    return comments
 
 @app.route('/favorite/<int:poem_id>/<mood>')
 def favorite(poem_id, mood):
@@ -428,6 +463,15 @@ def section(key):
     'likes': get_likes(p[0]),
     'is_liked': is_liked(p[0], current_user.id)
 })
+        poems.append({
+    'id': p[0], 'title': p[1], 'content': p[2],
+    'created': p[3], 'image': p[4],
+    'is_fav': is_favorite(p[0]),
+    'likes': get_likes(p[0]),
+    'is_liked': is_liked(p[0], current_user.id),
+    'comments': get_comments(p[0])
+})
+
     ai_line = random.choice(ai_lines.get(key, ['']))
     return render_template('section.html', key=key, poems=poems, ai_line=ai_line)
 

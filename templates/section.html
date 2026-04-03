@@ -232,6 +232,59 @@ input[type="checkbox"] { display: none; }
   border-color: rgba(200,80,80,0.4);
 }
 
+/* COMMENTS */
+.comments-section {
+  margin-top: 12px;
+  border-top: 1px solid rgba(192,86,106,0.08);
+  padding-top: 12px;
+}
+.comments-list {
+  display: flex; flex-direction: column; gap: 8px;
+  margin-bottom: 10px;
+}
+.comment-item {
+  background: var(--bg2);
+  border-radius: 8px; padding: 8px 12px;
+  display: flex; flex-direction: column; gap: 3px;
+}
+.comment-author {
+  font-size: 0.65rem; color: var(--mood-accent);
+  letter-spacing: 0.08em;
+  font-family: 'Cormorant Garamond', serif;
+  font-style: italic;
+}
+.comment-text {
+  font-family: 'Noto Nastaliq Urdu', serif;
+  font-size: 0.85rem; color: var(--text);
+  direction: rtl; text-align: right; line-height: 1.8;
+}
+.comment-date {
+  font-size: 0.58rem; color: var(--muted);
+  letter-spacing: 0.05em;
+  font-family: 'Cormorant Garamond', serif;
+}
+.comment-input-row {
+  display: flex; gap: 8px; align-items: center;
+}
+.comment-input {
+  flex: 1; padding: 8px 14px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 20px; outline: none;
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 0.82rem; color: var(--text);
+  transition: border-color 0.2s;
+}
+.comment-input:focus { border-color: var(--mood-accent); }
+.comment-input::placeholder { color: var(--muted); }
+.comment-btn {
+  padding: 8px 16px;
+  background: var(--mood-accent); color: white;
+  border: none; border-radius: 20px;
+  cursor: pointer; font-size: 0.82rem;
+  transition: all 0.2s;
+}
+.comment-btn:hover { opacity: 0.85; transform: translateX(2px); }
+
  </style>
 </head>
 <body>
@@ -347,9 +400,9 @@ input[type="checkbox"] { display: none; }
   <div class="saved-text">{{ poem.content }}</div>
   <div class="saved-footer">
     <a href="/like/{{ poem.id }}/{{ key }}" class="action-link like">
-  {% if poem.is_liked %}❤️{% else %}🤍{% endif %}
-  {{ poem.likes }}
-</a>
+      {% if poem.is_liked %}❤️{% else %}🤍{% endif %}
+      {{ poem.likes }}
+    </a>
     <a href="/favorite/{{ poem.id }}/{{ key }}" class="action-link fav">
       {% if poem.is_fav %}⭐ Saved{% else %}☆ Favorite{% endif %}
     </a>
@@ -357,6 +410,29 @@ input[type="checkbox"] { display: none; }
     <a href="/edit/{{ poem.id }}" class="action-link edit">Edit</a>
     <a href="/delete/{{ poem.id }}/{{ key }}" class="action-link delete"
        onclick="return confirm('Delete this poem?')">Delete</a>
+  </div>
+  <!-- COMMENTS -->
+  <div class="comments-section">
+    {% if poem.comments %}
+    <div class="comments-list">
+      {% for comment in poem.comments %}
+      <div class="comment-item">
+        <span class="comment-author">👤 {{ comment[2] }}</span>
+        <span class="comment-text">{{ comment[0] }}</span>
+        <span class="comment-date">{{ comment[1] }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+    <form method="POST" action="/comment/{{ poem.id }}">
+      <input type="hidden" name="mood" value="{{ key }}"/>
+      <div class="comment-input-row">
+        <input type="text" name="comment"
+               placeholder="Comment likhو... 💬"
+               class="comment-input"/>
+        <button type="submit" class="comment-btn">→</button>
+      </div>
+    </form>
   </div>
 </div>
 {% endfor %}
