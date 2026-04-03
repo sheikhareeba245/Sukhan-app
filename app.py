@@ -29,7 +29,7 @@ def load_user(user_id):
         return User(user[0], user[1], user[2])
     return None
 
-UPLOAD_FOLDER = 'static/uploads'
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -489,6 +489,7 @@ def save():
         if file and file.filename != '' and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filename = str(int(time.time())) + '_' + filename
+            
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image_filename = filename
 
