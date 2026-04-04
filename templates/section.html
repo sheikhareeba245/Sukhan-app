@@ -531,16 +531,20 @@ input[type="checkbox"] { display: none; }
   document.getElementById('wc').textContent = words;
   document.getElementById('lc').textContent = lines;
 }
+let isSaving = false;
+
 function saveWithToast() {
+  if (isSaving) return;
+  
   const title = document.querySelector('input[name="title"]').value.trim();
   const content = document.getElementById('poem-content').value.trim();
   
   if (!title || !content) {
-    // Show error toast
     showToast('✏️ Title aur poem dono likhein!', '#e86070');
     return;
   }
   
+  isSaving = true;
   showToast('🌸 Poem saved!', 'var(--mood-accent)');
   
   setTimeout(() => {
