@@ -375,11 +375,29 @@ input[type="checkbox"] { display: none; }
         </div>
 
         <textarea class="field-content" name="content" id="poem-content"
-  placeholder="یہاں لکھیں — Urdu ya English, jo dil chahye..."
-  rows="8" required oninput="updateCounter()"></textarea>
+  placeholder="یہاں لکھیں..." rows="8" required 
+  oninput="updateCounter()"></textarea>
 
 <div class="word-counter" id="word-counter">
   <span id="wc">0</span> words &nbsp;·&nbsp; <span id="lc">0</span> lines
+</div>
+
+<!-- IMAGE UPLOAD — textarea ke baad -->
+<div class="upload-box">
+  <label for="image-upload" class="upload-label">
+    <div class="upload-icon">📸</div>
+    <div class="upload-text">Add a Polaroid</div>
+    <div class="upload-sub">Click to upload your picture</div>
+  </label>
+  <input type="file" id="image-upload" name="image"
+         accept="image/*" style="display:none"
+         onchange="previewImage(this)"/>
+  <div id="preview-box" style="display:none; text-align:center;">
+    <div class="polaroid-preview">
+      <img id="preview-img" src="" alt="preview"/>
+      <div class="polaroid-caption">my moment ✨</div>
+    </div>
+  </div>
 </div>
       </form>
       {% if poems %}
