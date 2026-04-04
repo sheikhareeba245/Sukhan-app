@@ -545,24 +545,15 @@ function saveWithToast() {
   }
   
   isSaving = true;
+  const btn = document.querySelector('.et-btn.save');
+  btn.disabled = true;
+  btn.textContent = 'Saving...';
+  
   showToast('🌸 Poem saved!', 'var(--mood-accent)');
   
   setTimeout(() => {
     document.getElementById('poem-form').submit();
-  }, 1000);
-}
-
-function showToast(message, color) {
-  const toast = document.getElementById('toast');
-  toast.innerHTML = message;
-  toast.style.color = color;
-  toast.style.opacity = '1';
-  toast.style.transform = 'translateX(-50%) translateY(0)';
-  
-  setTimeout(() => {
-    toast.style.opacity = '0';
-    toast.style.transform = 'translateX(-50%) translateY(100px)';
-  }, 2500);
+  }, 800);
 }
 </script>
 </body>
