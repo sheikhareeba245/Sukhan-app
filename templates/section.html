@@ -346,6 +346,13 @@ input[type="checkbox"] { display: none; }
     <div class="editor-body">
       <form id="poem-form" method="POST" action="/save" enctype="multipart/form-data">
         <input type="hidden" name="mood" value="{{ key }}"/>
+        <div class="public-toggle" style="margin-bottom:10px;">
+  <label class="toggle-label">
+    <input type="checkbox" name="is_public"/>
+    <span class="toggle-switch"></span>
+    <span class="toggle-text">Make this poem public 🌍</span>
+  </label>
+</div>
         <input class="field-title" type="text" name="title" placeholder="Poem title..." required/>
         <div class="ornament">❧ &nbsp; ❦ &nbsp; ❧</div>
         <textarea class="field-content" name="content" id="poem-content"
@@ -418,14 +425,6 @@ input[type="checkbox"] { display: none; }
     {% endif %}
     <form method="POST" action="/comment/{{ poem.id }}">
       <input type="hidden" name="mood" value="{{ key }}"/>
-      <div class="public-toggle">
-  <label class="toggle-label">
-    <input type="checkbox" name="is_public" id="is_public"/>
-    <span class="toggle-switch"></span>
-    <span class="toggle-text">Make this poem public 🌍</span>
-  </label>
-</div>
-      <input type="hidden" name="is_public" id="is_public_hidden" value="0"/>
       <div class="comment-input-row">
         <input type="text" name="comment"
                placeholder="Comment likhو... 💬"
@@ -524,6 +523,17 @@ function saveWithToast() {
   }
   showToast('🌸 Poem saved!', 'var(--mood-accent)');
   document.getElementById('poem-form').submit();
+}
+function showToast(message, color) {
+  const toast = document.getElementById('toast');
+  toast.innerHTML = message;
+  toast.style.color = color;
+  toast.style.opacity = '1';
+  toast.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(-50%) translateY(100px)';
+  }, 2500);
 }
 </script>
 </body>
