@@ -340,13 +340,6 @@ input[type="checkbox"] { display: none; }
     <div class="editor-topbar">
       <span class="topbar-label">✦ Write a New Poem</span>
       <div class="et-spacer"></div>
-      <div class="public-toggle">
-  <label class="toggle-label">
-    <input type="checkbox" id="is_public" onchange="document.getElementById('is_public_hidden').value = this.checked ? 1 : 0"/>
-    <span class="toggle-switch"></span>
-    <span class="toggle-text">Make this poem public 🌍</span>
-  </label>
-</div>
      <button class="et-btn save" onclick="saveWithToast()">Save Poem</button>
     </div>
 
@@ -425,6 +418,13 @@ input[type="checkbox"] { display: none; }
     {% endif %}
     <form method="POST" action="/comment/{{ poem.id }}">
       <input type="hidden" name="mood" value="{{ key }}"/>
+      <div class="public-toggle">
+  <label class="toggle-label">
+    <input type="checkbox" name="is_public" id="is_public"/>
+    <span class="toggle-switch"></span>
+    <span class="toggle-text">Make this poem public 🌍</span>
+  </label>
+</div>
       <input type="hidden" name="is_public" id="is_public_hidden" value="0"/>
       <div class="comment-input-row">
         <input type="text" name="comment"
