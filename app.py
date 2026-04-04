@@ -1,13 +1,23 @@
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.utils import secure_filename
 import random
 import sqlite3
 import os
 import time
-from werkzeug.utils import secure_filename
+
+# Paths
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+DB = os.path.join(BASE_DIR, 'sukhan.db')
+UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
+
 app = Flask(__name__)
 app.secret_key = 'sukhan-secret-key-2024'
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
@@ -29,19 +39,8 @@ def load_user(user_id):
         return User(user[0], user[1], user[2])
     return None
 
-UPLOAD_FOLDER = os.path.join(BASE_DIR, 'static', 'uploads')
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
-
-# Create uploads folder if not exists
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
-
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-import os
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DB = os.path.join(BASE_DIR, 'sukhan.db')
 
 ai_lines = {
     'love': [
@@ -489,7 +488,7 @@ def save():
         if file and file.filename != '' and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             filename = str(int(time.time())) + '_' + filename
-            
+            os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             image_filename = filename
 
