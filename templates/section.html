@@ -342,7 +342,7 @@ input[type="checkbox"] { display: none; }
       <div class="et-spacer"></div>
       <div class="public-toggle">
   <label class="toggle-label">
-    <input type="checkbox" name="is_public" id="is_public"/>
+    <input type="checkbox" id="is_public" onchange="document.getElementById('is_public_hidden').value = this.checked ? 1 : 0"/>
     <span class="toggle-switch"></span>
     <span class="toggle-text">Make this poem public 🌍</span>
   </label>
@@ -355,25 +355,6 @@ input[type="checkbox"] { display: none; }
         <input type="hidden" name="mood" value="{{ key }}"/>
         <input class="field-title" type="text" name="title" placeholder="Poem title..." required/>
         <div class="ornament">❧ &nbsp; ❦ &nbsp; ❧</div>
-
-        <!-- POLAROID UPLOAD -->
-        <div class="upload-box">
-          <label for="image-upload" class="upload-label">
-            <div class="upload-icon">📸</div>
-            <div class="upload-text">Add a Polaroid</div>
-            <div class="upload-sub">Click to upload your picture</div>
-          </label>
-          <input type="file" id="image-upload" name="image"
-                 accept="image/*" style="display:none"
-                 onchange="previewImage(this)"/>
-          <div id="preview-box" style="display:none; text-align:center;">
-            <div class="polaroid-preview">
-              <img id="preview-img" src="" alt="preview"/>
-              <div class="polaroid-caption">my moment ✨</div>
-            </div>
-          </div>
-        </div>
-
         <textarea class="field-content" name="content" id="poem-content"
   placeholder="یہاں لکھیں..." rows="8" required 
   oninput="updateCounter()"></textarea>
@@ -444,6 +425,7 @@ input[type="checkbox"] { display: none; }
     {% endif %}
     <form method="POST" action="/comment/{{ poem.id }}">
       <input type="hidden" name="mood" value="{{ key }}"/>
+      <input type="hidden" name="is_public" id="is_public_hidden" value="0"/>
       <div class="comment-input-row">
         <input type="text" name="comment"
                placeholder="Comment likhو... 💬"
