@@ -515,18 +515,23 @@ input[type="checkbox"] { display: none; }
 let isSaving = false;
 
 function saveWithToast() {
+  if (isSaving) return;
+  
   const title = document.querySelector('input[name="title"]').value.trim();
   const content = document.getElementById('poem-content').value.trim();
+  
   if (!title || !content) {
     showToast('✏️ Title aur poem dono likhein!', '#e86070');
     return;
   }
+  
   isSaving = true;
+  document.querySelector('.et-btn.save').disabled = true;
+  
   showToast('🌸 Poem saved!', 'var(--mood-accent)');
   document.getElementById('poem-form').submit();
 }
 function showToast(message, color) {
-  if (isSaving) return;
   const toast = document.getElementById('toast');
   toast.innerHTML = message;
   toast.style.color = color;
