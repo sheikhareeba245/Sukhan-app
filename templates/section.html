@@ -318,17 +318,17 @@ input[type="checkbox"] { display: none; }
     </div>
     <div class="poem-list">
       {% if poems %}
-        {% for poem in poems %}
-<div class="poem-item">
-  <div class="pi-title">
-    {% if poem.is_fav %}⭐ {% endif %}{{ poem.title }}
+  {% for poem in poems %}
+  <div class="poem-item">
+    <div class="pi-title">
+      {% if poem.is_fav %}⭐ {% endif %}{{ poem.title }}
+    </div>
+    <div class="pi-date">{{ poem.created }}</div>
   </div>
-  <div class="pi-date">{{ poem.created }}</div>
-</div>
-{% endfor %}
-      {% else %}
-        <div class="empty-state">ابھی کوئی نظم نہیں 🌸<br/><span style="font-size:0.65rem;">Write your first poem!</span></div>
-      {% endif %}
+  {% endfor %}
+{% else %}
+  <div class="empty-state">ابھی کوئی نظم نہیں 🌸<br/><span style="font-size:0.65rem;">Write your first poem!</span></div>
+{% endif %}
     </div>
     <div class="sidebar-stats">
       <div class="stat"><div class="stat-n">{{ poems|length }}</div><div class="stat-l">Poems</div></div>

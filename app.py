@@ -329,7 +329,7 @@ def edit_profile():
         return redirect(url_for('profile'))
     conn = sqlite3.connect(DB)
     c = conn.cursor()
-    c.execute('SELECT display_name, bio, city FROM users WHERE id=?', (current_user.id,))
+    c.execute('SELECT display_name, bio, city, gender FROM users WHERE id = ?', (current_user.id,))
     user_info = c.fetchone()
     conn.close()
     return render_template('edit_profile.html', user_info=user_info)
@@ -340,12 +340,13 @@ def register():
         username = request.form['username']
         email    = request.form['email']
         password = request.form['password']
+        gender   = request.form.get('gender', 'female')
         hashed   = generate_password_hash(password)
         try:
             conn = sqlite3.connect(DB)
             c = conn.cursor()
-            c.execute('INSERT INTO users (username, email, password) VALUES (?, ?, ?)',
-                      (username, email, hashed))
+            c.execute('INSERT INTO users (username, email, password, gender) VALUES (?, ?, ?, ?)',
+                      (username, email, hashed, gender))
             conn.commit()
             conn.close()
             return redirect(url_for('login'))
