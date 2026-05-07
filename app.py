@@ -15,6 +15,10 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app = Flask(__name__)
 app.secret_key = 'sukhan-secret-key-2024'
+ADMIN_EMAIL = 'ahmadareeba363@gmail.com'
+
+def is_admin():
+    return current_user.is_authenticated and current_user.email == ADMIN_EMAIL
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 os.makedirs(UPLOAD_FOLDER, exist_ok=True)
 
@@ -145,12 +149,6 @@ def init_db():
 ''')
     conn.commit()
     conn.close()
-
-
-ADMIN_EMAIL = 'silent5worker363@gmail.com'
-
-def is_admin():
-    return current_user.is_authenticated and current_user.email == ADMIN_EMAIL
 
 def get_poem_count(mood):
     from flask_login import current_user
