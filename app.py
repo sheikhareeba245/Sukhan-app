@@ -146,6 +146,12 @@ def init_db():
     conn.commit()
     conn.close()
 
+
+ADMIN_EMAIL = 'silent5worker363@gmail.com'
+
+def is_admin():
+    return current_user.is_authenticated and current_user.email == ADMIN_EMAIL
+
 def get_poem_count(mood):
     from flask_login import current_user
     conn = sqlite3.connect(DB)
@@ -286,6 +292,63 @@ def favorites():
     poems = c.fetchall()
     conn.close()
     return render_template('favorites.html', poems=poems)
+
+
+@app.route('/admin')
+@login_required
+def admin():
+    if not is_admin():
+        return redirect(url_for('home'))
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('SELECT id, username, email, created FROM users ORDER BY id DESC')
+    users = c.fetchall()
+    c.execute('SELECT COUNT(*) FROM poems')
+    total_poems = c.fetchone()[0]
+    c.execute('SELECT COUNT(*) FROM users')
+    total_users = c.fetchone()[0]
+    c.execute('SELECT COUNT(*) FROM likes')
+    total_likes = c.fetchone()[0]
+    c.execute('SELECT COUNT(*) FROM comments')
+    total_comments = c.fetchone()[0]
+    c.execute('''SELECT p.id, p.title, p.mood, p.created, u.username 
+                 FROM poems p JOIN users u ON p.user_id = u.id 
+                 ORDER BY p.id DESC LIMIT 20''')
+    recent_poems = c.fetchall()
+    conn.close()
+    return render_template('admin.html',
+        users=users,
+        total_poems=total_poems,
+        total_users=total_users,
+        total_likes=total_likes,
+        total_comments=total_comments,
+        recent_poems=recent_poems
+    )
+
+@app.route('/admin/delete_user/<int:user_id>')
+@login_required
+def admin_delete_user(user_id):
+    if not is_admin():
+        return redirect(url_for('home'))
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('DELETE FROM poems WHERE user_id = ?', (user_id,))
+    c.execute('DELETE FROM users WHERE id = ?', (user_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin'))
+
+@app.route('/admin/delete_poem/<int:poem_id>')
+@login_required
+def admin_delete_poem(poem_id):
+    if not is_admin():
+        return redirect(url_for('home'))
+    conn = sqlite3.connect(DB)
+    c = conn.cursor()
+    c.execute('DELETE FROM poems WHERE id = ?', (poem_id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('admin'))
 
 @app.route('/profile')
 @login_required
