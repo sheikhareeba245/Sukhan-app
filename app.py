@@ -15,7 +15,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp'}
 
 app = Flask(__name__)
 app.secret_key = 'sukhan-secret-key-2024'
-ADMIN_EMAIL = 'ahmadareeba363@gmail.com'
+ADMIN_EMAIL = 'silent5worker363@gmail.com'
 
 def is_admin():
     return current_user.is_authenticated and current_user.email == ADMIN_EMAIL
