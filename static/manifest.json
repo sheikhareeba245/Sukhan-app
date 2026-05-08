@@ -1,0 +1,22 @@
+{
+  "name": "Sukhan — سخن",
+  "short_name": "Sukhan",
+  "description": "Your Personal Poetry Diary",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#fdf8f5",
+  "theme_color": "#c0566a",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/static/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/static/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
